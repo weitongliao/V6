@@ -3,7 +3,7 @@ import java.net.*;
 
 public class ClientV6 {
     public static void main(String[] args) throws IOException {
-        String serverIPv6Address = "fe80::25c6:397:7e73:9775";  // Replace with actual server's IPv6 address
+        String serverIPv6Address = "fe80::c16:37f:388b:4f25";  // Replace with actual server's IPv6 address
 
         Socket socket = new Socket(serverIPv6Address, 12345);
 
