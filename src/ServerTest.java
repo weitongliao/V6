@@ -1,3 +1,7 @@
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.Inet6Address;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +12,28 @@ public class ServerTest {
     static HashMap<String, String> nodes = new HashMap<>();
 
     public static void main(String[] args) {
+        int port = 12345;
+
+        try {
+            DatagramSocket socket = new DatagramSocket(port, Inet6Address.getByName("::"));
+            System.out.println("Server listening on port " + port);
+
+            while (true) {
+                byte[] buffer = new byte[1024];
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
+                socket.receive(packet);
+
+//                String request = new String(packet.getData(), 0, packet.getLength());
+//                System.out.println("Received request: " + request);
+
+                Thread requestHandler = new Thread(new RequestHandler(packet));
+                requestHandler.start();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 //        Node t = new Node(new NodeID("1111"),
 //                new NodeID(3, "0000", "1.1.1.1", 12345),
 //                new NodeID(2, "0001", "1.1.1.1", 12345),
@@ -32,15 +58,6 @@ public class ServerTest {
         nodes.put("11100", "1.1.1.2");
         nodes.put("11010", "1.1.1.2");
 //        nodes.put("11013", "1.1.1.2");
-
-//        nodes.put("111011114", "1.1.1.2");//
-//        nodes.put("111011104", "1.1.1.2");
-//        nodes.put("111100014", "1.1.1.2");//
-//        nodes.put("111100104", "1.1.1.2");
-//        nodes.put("111011114", "1.1.1.2");//
-//        nodes.put("111011104", "1.1.1.2");
-
-//        nodes.put("11011", "1.1.1.2");
 
         String currentNodeID = "11011";
 //        target 111xx
