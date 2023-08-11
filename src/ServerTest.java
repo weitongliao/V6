@@ -6,10 +6,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerTest {
-//    ID and IP mapping
-    static HashMap<String, String> nodes = new HashMap<>();
+    //    ID and IP mapping
+    // ConcurrentHashMap有什么缺陷吗？
+    //ConcurrentHashMap 是设计为非阻塞的。
+    // 在更新时会局部锁住某部分数据，但不会把整个表都锁住。
+    // 同步读取操作则是完全非阻塞的。
+    // 好处是在保证合理的同步前提下，效率很高。坏处是严格来说读取操作不能保证反映最近的更新
+    static ConcurrentHashMap<String, String> nodes = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
         int port = 12345;
@@ -27,7 +33,7 @@ public class ServerTest {
 //                String request = new String(packet.getData(), 0, packet.getLength());
 //                System.out.println("Received request: " + request);
 
-                Thread requestHandler = new Thread(new RequestHandler(packet));
+                Thread requestHandler = new Thread(new RequestHandler(packet, nodes));
                 requestHandler.start();
             }
         } catch (IOException e) {
@@ -72,7 +78,7 @@ public class ServerTest {
 
     }
 
-    public static String getLeftOutsideLeaf(HashMap<String, String> nodes, String currentNodeID) {
+    public static String getLeftOutsideLeaf(ConcurrentHashMap<String, String> nodes, String currentNodeID) {
         String leftOutsideLeaf = null;
 
         for (Map.Entry<String, String> entry : nodes.entrySet()) {
@@ -87,7 +93,7 @@ public class ServerTest {
         return leftOutsideLeaf;
     }
 
-    public static String getRightOutsideLeaf(HashMap<String, String> nodes, String currentNodeID) {
+    public static String getRightOutsideLeaf(ConcurrentHashMap<String, String> nodes, String currentNodeID) {
         String rightOutsideLeaf = null;
 
         for (Map.Entry<String, String> entry : nodes.entrySet()) {
@@ -102,7 +108,7 @@ public class ServerTest {
         return rightOutsideLeaf;
     }
 
-    public static String getLeftCyclicNeighbor(HashMap<String, String> nodes, String currentNodeID) {
+    public static String getLeftCyclicNeighbor(ConcurrentHashMap<String, String> nodes, String currentNodeID) {
         String leftCyclicNeighbor = null;
 
         for (Map.Entry<String, String> entry : nodes.entrySet()) {
@@ -117,7 +123,7 @@ public class ServerTest {
         return leftCyclicNeighbor;
     }
 
-    public static String getRightCyclicNeighbor(HashMap<String, String> nodes, String currentNodeID) {
+    public static String getRightCyclicNeighbor(ConcurrentHashMap<String, String> nodes, String currentNodeID) {
         String rightCyclicNeighbor = null;
 
         for (Map.Entry<String, String> entry : nodes.entrySet()) {
@@ -132,7 +138,7 @@ public class ServerTest {
         return rightCyclicNeighbor;
     }
 
-    public static String getCubicalNeighbor(HashMap<String, String> nodes, String currentNodeID) {
+    public static String getCubicalNeighbor(ConcurrentHashMap<String, String> nodes, String currentNodeID) {
         String cubicalNeighbor = null;
         int id_length = currentNodeID.length();
         char last = currentNodeID.charAt(id_length-1);
@@ -162,7 +168,7 @@ public class ServerTest {
         return cubicalNeighbor;
     }
 
-    public static List<String> getInnerLeaf(HashMap<String, String> nodes, String currentNodeID) {
+    public static List<String> getInnerLeaf(ConcurrentHashMap<String, String> nodes, String currentNodeID) {
         int id_length = currentNodeID.length();
         List<String> matchingKeys = new ArrayList<>();
         String prefix = currentNodeID.substring(0, id_length-1);

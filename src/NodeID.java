@@ -31,10 +31,10 @@ public class NodeID {
 
 
 
-    public NodeID(String id, String ip, int port) {
+    public NodeID(String id, String ip) {
         this.id = id;
         this.ip = ip;
-        this.port = port;
+        this.port = 23456;
     }
 
 

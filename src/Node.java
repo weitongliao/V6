@@ -1,6 +1,7 @@
 import java.util.Objects;
 
 public class Node {
+    private int clientPort = 23456;
     private String nodeId;
     private NodeID cubicalNeighbor;
     private NodeID leftCyclicNeighbor;
@@ -97,7 +98,7 @@ public class Node {
         this.rightOutsideLeaf = rightOutsideLeaf;
     }
 
-    public void routing(String destination){
+    public void routing(String source, String destination){
         System.out.println(destination);
         // current node is destination, return
         if(Objects.equals(destination, this.nodeId)){
@@ -107,20 +108,22 @@ public class Node {
         int k = Integer.parseInt(String.valueOf(this.nodeId.charAt(nodeId.length() - 1)));
         int MSDB = findHighestDifferentBit(this.nodeId.substring(0, nodeId.length() - 1), destination.substring(0, nodeId.length() - 1));
         if(k < MSDB){
-            ascending(destination);
+            ascending(source, destination);
         }else if(k > MSDB){
-            descending(destination);
+            descending(source, destination, k, MSDB);
         }else {
-            traverseCycle(destination);
+            traverseCycle(source, destination);
         }
     }
 
     // k < MSDB, send request to outside leaf
-    private void ascending(String destination){
+    private void ascending(String source, String destination){
         if(this.leftOutsideLeaf != null){
-            sendRequest(this.leftOutsideLeaf, "");
+            ClientTest.sendMsg("f", "", source, this.nodeId, this.leftOutsideLeaf.getIp(), clientPort);
+//            sendRequest(this.leftOutsideLeaf, "");
         }else if (this.rightOutsideLeaf != null){
-            sendRequest(this.rightOutsideLeaf, "");
+            ClientTest.sendMsg("f", "", source, this.nodeId, this.rightOutsideLeaf.getIp(), clientPort);
+//            sendRequest(this.rightOutsideLeaf, "");
         }else{
             // TODO: 2023/8/10
             //routing();
@@ -130,22 +133,33 @@ public class Node {
     }
 
     // k = MSDB, send request to cubical neighbor
-    private void descending(String destination){
-        if(this.cubicalNeighbor != null){
-            sendRequest(this.cubicalNeighbor, "");
-        }else{
-            // TODO: 2023/8/10 return to source 
+    private void descending(String source, String destination, int k, int MSDB){
+        if(k==MSDB && this.cubicalNeighbor != null){
+            ClientTest.sendMsg("f", "", source, this.nodeId, this.cubicalNeighbor.getIp(), clientPort);
+//            sendRequest(this.cubicalNeighbor, "");
+        }else if (this.leftCyclicNeighbor != null){
+            ClientTest.sendMsg("f", "", source, this.nodeId, this.leftCyclicNeighbor.getIp(), clientPort);
+        }else if(this.rightCyclicNeighbor != null){
+            ClientTest.sendMsg("f", "", source, this.nodeId, this.rightCyclicNeighbor.getIp(), clientPort);
+        }else if(this.leftInsideLeaf != null){
+            ClientTest.sendMsg("f", "", source, this.nodeId, this.leftInsideLeaf.getIp(), clientPort);
+        }else if(this.rightInsideLeaf != null){
+            ClientTest.sendMsg("f", "", source, this.nodeId, this.rightInsideLeaf.getIp(), clientPort);
+        }else {
+            // TODO: 2023/8/11 return to source
         }
         
     }
 
-    private void traverseCycle(String destination){
+    private void traverseCycle(String source, String destination){
         if(this.leftInsideLeaf == null && this.rightInsideLeaf == null){
             // TODO: 2023/8/10 return to source
         } else if (this.leftInsideLeaf == null){
-            sendRequest(this.rightInsideLeaf, "");
+            ClientTest.sendMsg("f", "", source, this.nodeId, this.rightInsideLeaf.getIp(), clientPort);
+//            sendRequest(this.rightInsideLeaf, "");
         } else if (this.rightInsideLeaf == null){
-            sendRequest(this.leftInsideLeaf, "");
+            ClientTest.sendMsg("f", "", source, this.nodeId, this.leftInsideLeaf.getIp(), clientPort);
+//            sendRequest(this.leftInsideLeaf, "");
         } else {
             int targetValue = Integer.parseInt(destination);
             int value1 = Integer.parseInt(this.leftInsideLeaf.getId());
@@ -155,16 +169,19 @@ public class Node {
             int diff2 = Math.abs(targetValue - value2);
 
             if (diff1 < diff2) {
-                sendRequest(this.leftInsideLeaf, "");
+                ClientTest.sendMsg("f", "", source, this.nodeId, this.leftInsideLeaf.getIp(), clientPort);
+//                sendRequest(this.leftInsideLeaf, "");
             } else {
-                sendRequest(this.rightInsideLeaf, "");
+                // TODO data中包含source节点需要的资源量
+                ClientTest.sendMsg("f", "", source, this.nodeId, this.rightInsideLeaf.getIp(), clientPort);
+//                sendRequest(this.rightInsideLeaf, "");
             }
         }
     }
 
-    private void sendRequest(NodeID destination, String content){
-        System.out.println(destination);
-    }
+//    private void sendRequest(NodeID destination, String content){
+//        System.out.println(destination);
+//    }
 
     public static int findHighestDifferentBit(String str1, String str2) {
         int length = Math.min(str1.length(), str2.length());

@@ -1,3 +1,5 @@
+import com.sun.tools.javac.comp.Todo;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -21,25 +23,27 @@ public class ClientTest {
         // Initialize
         Thread listenerThread = new Thread(new ListenerThread(listenPort, node));
         listenerThread.start();
-        sendMsg("j", null, null, serverAddress, serverPort);
+        // Todo: data要是资源量的信息
+        sendMsg("j", null, null, null,serverAddress, serverPort);
 
         // update neighbor info constantly
         Thread communicationThread = new Thread(new CommunicationToServerThread(serverAddress, serverPort, node));
         communicationThread.start();
     }
 
-    public static void sendMsg(String header, String data, String sourceID,  String destination, int port){
+    public static void sendMsg(String header, String data, String sourceID, String senderID, String destinationIP, int port){
         HashMap<String, String> dictionary = new HashMap<>();
-        dictionary.put("H", header); // H for header, u for update neighbour, j for join
+        dictionary.put("H", header); // H for header, u for update neighbour, j for join, r for server reply to update from server
         dictionary.put("D", data); // D for data
         dictionary.put("S", sourceID); // S for source ID
+        dictionary.put("E", senderID); // Sender
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try {
             ObjectOutputStream objectStream = new ObjectOutputStream(byteStream);
             // Serialize and send the dictionary
             objectStream.writeObject(dictionary);
             byte[] sendData = byteStream.toByteArray();
-            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, Inet6Address.getByName(destination), port);
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, Inet6Address.getByName(destinationIP), port);
             DatagramSocket clientSocket = new DatagramSocket();
             clientSocket.send(sendPacket);
             clientSocket.close();
@@ -64,7 +68,7 @@ class CommunicationToServerThread implements Runnable {
     public void run() {
         while (true){
             // Update Neighbors
-            ClientTest.sendMsg("u", null, node.getNodeId(), serverAddress, serverPort);
+            ClientTest.sendMsg("u", null, node.getNodeId(), node.getNodeId(), serverAddress, serverPort);
             try {
                 Thread.sleep(10000); //update neighbor every 10 seconds
             } catch (InterruptedException e) {
