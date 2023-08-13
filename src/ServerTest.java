@@ -18,27 +18,27 @@ public class ServerTest {
     static ConcurrentHashMap<String, String> nodes = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
-        int port = 12345;
-
-        try {
-            DatagramSocket socket = new DatagramSocket(port, Inet6Address.getByName("::"));
-            System.out.println("Server listening on port " + port);
-
-            while (true) {
-                byte[] buffer = new byte[1024];
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-
-                socket.receive(packet);
-
-//                String request = new String(packet.getData(), 0, packet.getLength());
-//                System.out.println("Received request: " + request);
-
-                Thread requestHandler = new Thread(new RequestHandler(packet, nodes));
-                requestHandler.start();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        int port = 12345;
+//
+//        try {
+//            DatagramSocket socket = new DatagramSocket(port, Inet6Address.getByName("::"));
+//            System.out.println("Server listening on port " + port);
+//
+//            while (true) {
+//                byte[] buffer = new byte[1024];
+//                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+//
+//                socket.receive(packet);
+//
+////                String request = new String(packet.getData(), 0, packet.getLength());
+////                System.out.println("Received request: " + request);
+//
+//                Thread requestHandler = new Thread(new RequestHandler(packet, nodes));
+//                requestHandler.start();
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
 //        Node t = new Node(new NodeID("1111"),
 //                new NodeID(3, "0000", "1.1.1.1", 12345),
@@ -51,23 +51,36 @@ public class ServerTest {
 
 //        System.out.println(t.getNodeId().getCubicalIndex());
 
-        nodes.put("11002", "1.1.1.1");
-        nodes.put("11003", "1.1.1.2");
-        nodes.put("11014", "1.1.1.2");
-        nodes.put("11005", "1.1.1.2");
-        nodes.put("10005", "1.1.1.2");
-        nodes.put("11115", "1.1.1.2");
-        nodes.put("11105", "1.1.1.2");
-        nodes.put("11006", "1.1.1.2");
-        nodes.put("11116", "1.1.1.2");
-//        nodes.put("11118", "1.1.1.2");
-        nodes.put("11100", "1.1.1.2");
-        nodes.put("11010", "1.1.1.2");
-//        nodes.put("11013", "1.1.1.2");
+        nodes.put("11111001104", "1.1.1.1");
+        nodes.put("11110101104", "1.1.1.1");
 
-        String currentNodeID = "11011";
-//        target 111xx
-//        String currentNodeID = "111100005";
+        nodes.put("11111100104", "1.1.1.1");
+        nodes.put("11111101004", "1.1.1.1");
+
+        nodes.put("11011100004", "1.1.1.1");
+        nodes.put("11110100004", "1.1.1.1");
+        nodes.put("11100100004", "1.1.1.1");
+        nodes.put("11110110004", "1.1.1.1");
+
+        nodes.put("11111100003", "1.1.1.1");
+        nodes.put("11111100002", "1.1.1.1");
+
+        nodes.put("11111011108", "1.1.1.1");
+        nodes.put("11111011104", "1.1.1.1");
+
+        nodes.put("11111111004", "1.1.1.1");
+        nodes.put("11111100108", "1.1.1.1");
+        nodes.put("11111100107", "1.1.1.1");
+        nodes.put("11111101107", "1.1.1.1");
+//        nodes.put("11111100006", "1.1.1.1");
+//        nodes.put("11111100007", "1.1.1.1");
+//        nodes.put("111113", "1.1.1.2");
+//        nodes.put("010141", "1.1.1.2");
+//        nodes.put("101141", "1.1.1.2");
+
+
+        String currentNodeID = "11111100005";
+
 
         System.out.println("Left Outside Leaf: " + getLeftOutsideLeaf(nodes, currentNodeID));
         System.out.println("Right Outside Leaf: " + getRightOutsideLeaf(nodes, currentNodeID));
@@ -80,42 +93,85 @@ public class ServerTest {
 
     public static String getLeftOutsideLeaf(ConcurrentHashMap<String, String> nodes, String currentNodeID) {
         String leftOutsideLeaf = null;
+        int minDifference = Integer.MAX_VALUE;
 
-        for (Map.Entry<String, String> entry : nodes.entrySet()) {
-            String key = entry.getKey();
-            if (key.substring(0, key.length() - 1).compareTo(currentNodeID.substring(0, key.length() - 1)) < 0) {
-                if (leftOutsideLeaf == null || key.charAt(key.length() - 1) > leftOutsideLeaf.charAt(key.length() - 1)) {
-                    leftOutsideLeaf = key;
-                }
+        int k = getCyclicIndex(currentNodeID);
+        int cubicalIndex = getCubicalIndex(currentNodeID);
+        int diff = 0;
+
+        String neighborCubic = null;
+        for(String id: nodes.keySet()){
+            diff = cubicalIndex - getCubicalIndex(id);
+            if(diff > 0 && diff < minDifference){
+                minDifference = diff;
+                neighborCubic = String.valueOf(getCubicalIndex(id));
             }
         }
+        if(neighborCubic != null){
+            int maxCyclic = -1;
+            for(String id: nodes.keySet()){
+                if(String.valueOf(getCubicalIndex(id)).equals(neighborCubic)){
+                    if (getCyclicIndex(id) > maxCyclic){
+                        maxCyclic = getCyclicIndex(id);
+                    }
+                }
+            }
+            leftOutsideLeaf = neighborCubic + String.format("%02d", maxCyclic);
+        }
+
 
         return leftOutsideLeaf;
     }
 
     public static String getRightOutsideLeaf(ConcurrentHashMap<String, String> nodes, String currentNodeID) {
-        String rightOutsideLeaf = null;
+        String leftOutsideLeaf = null;
+        int minDifference = Integer.MAX_VALUE;
 
-        for (Map.Entry<String, String> entry : nodes.entrySet()) {
-            String key = entry.getKey();
-            if (key.substring(0, key.length() - 1).compareTo(currentNodeID.substring(0, key.length() - 1)) > 0) {
-                if (rightOutsideLeaf == null || key.charAt(key.length() - 1) > rightOutsideLeaf.charAt(key.length() - 1)) {
-                    rightOutsideLeaf = key;
-                }
+        int k = getCyclicIndex(currentNodeID);
+        int cubicalIndex = getCubicalIndex(currentNodeID);
+        int diff = 0;
+
+        String neighborCubic = null;
+        for(String id: nodes.keySet()){
+            diff =  getCubicalIndex(id) - cubicalIndex;
+            if(diff > 0 && diff < minDifference){
+                minDifference = diff;
+                neighborCubic = String.valueOf(getCubicalIndex(id));
             }
         }
+        if(neighborCubic != null){
+            int maxCyclic = -1;
+            for(String id: nodes.keySet()){
+                if(String.valueOf(getCubicalIndex(id)).equals(neighborCubic)){
+                    if (getCyclicIndex(id) > maxCyclic){
+                        maxCyclic = getCyclicIndex(id);
+                    }
+                }
+            }
+            leftOutsideLeaf = neighborCubic + String.format("%02d", maxCyclic);
+        }
 
-        return rightOutsideLeaf;
+
+        return leftOutsideLeaf;
     }
 
     public static String getLeftCyclicNeighbor(ConcurrentHashMap<String, String> nodes, String currentNodeID) {
         String leftCyclicNeighbor = null;
+        int MSDB = 0;
+        int diff = 0;
+        int minDifference = Integer.MAX_VALUE;
+
+        int k = getCyclicIndex(currentNodeID);
+        int cubicalIndex = getCubicalIndex(currentNodeID);
 
         for (Map.Entry<String, String> entry : nodes.entrySet()) {
             String key = entry.getKey();
-            if (key.substring(0, key.length() - 1).compareTo(currentNodeID.substring(0, key.length() - 1)) <= 0 && key.charAt(key.length() - 1) == currentNodeID.charAt(key.length() - 1) - 1) {
-                if (leftCyclicNeighbor == null || key.compareTo(leftCyclicNeighbor) > 0) {
+            MSDB = Node.findHighestDifferentBit(String.valueOf(getCubicalIndex(key)), String.valueOf(cubicalIndex));
+            diff = cubicalIndex - getCubicalIndex(key);
+            if(getCyclicIndex(key) == k - 1 && MSDB <= k - 1 && diff > 0){
+                if(leftCyclicNeighbor == null || diff < minDifference){
                     leftCyclicNeighbor = key;
+                    minDifference = diff;
                 }
             }
         }
@@ -124,13 +180,21 @@ public class ServerTest {
     }
 
     public static String getRightCyclicNeighbor(ConcurrentHashMap<String, String> nodes, String currentNodeID) {
+        int k = getCyclicIndex(currentNodeID);
+        int cubicalIndex = getCubicalIndex(currentNodeID);
         String rightCyclicNeighbor = null;
+        int MSDB = 0;
+        int diff = 0;
+        int maxDifference = Integer.MIN_VALUE;
 
         for (Map.Entry<String, String> entry : nodes.entrySet()) {
             String key = entry.getKey();
-            if (key.substring(0, key.length() - 1).compareTo(currentNodeID.substring(0, key.length() - 1)) >= 0 && key.charAt(key.length() - 1) == currentNodeID.charAt(key.length() - 1) - 1) {
-                if (rightCyclicNeighbor == null || key.compareTo(rightCyclicNeighbor) < 0) {
+            MSDB = Node.findHighestDifferentBit(String.valueOf(getCubicalIndex(key)), String.valueOf(cubicalIndex));
+            diff = cubicalIndex - getCubicalIndex(key);
+            if(getCyclicIndex(key) == k - 1 && MSDB <= k - 1 && diff < 0){
+                if(rightCyclicNeighbor == null || diff > maxDifference){
                     rightCyclicNeighbor = key;
+                    maxDifference = diff;
                 }
             }
         }
@@ -140,26 +204,15 @@ public class ServerTest {
 
     public static String getCubicalNeighbor(ConcurrentHashMap<String, String> nodes, String currentNodeID) {
         String cubicalNeighbor = null;
-        int id_length = currentNodeID.length();
-        char last = currentNodeID.charAt(id_length-1);
-        int lastDigit = Integer.parseInt(String.valueOf(last));
+        int k = getCyclicIndex(currentNodeID);
 
-        int k_th_digit = Integer.parseInt(String.valueOf(currentNodeID.charAt(id_length - lastDigit - 2)));
-
-        String firstKDigit = currentNodeID.substring(0, id_length - lastDigit - 2);
-
-//        System.out.println(firstKDigit);
         for (Map.Entry<String, String> entry : nodes.entrySet()) {
             String key = entry.getKey();
-            char keyLast = key.charAt(id_length-1);
-            int keyLastDigit = Integer.parseInt(String.valueOf(keyLast));
-//            System.out.println(keyLastDigit);
-
-            if (keyLastDigit == lastDigit - 1) {
-                if(key.substring(0, id_length - lastDigit - 2).equals(firstKDigit)){
-                    if(Integer.parseInt(String.valueOf(key.charAt(id_length - lastDigit - 2))) + k_th_digit == 1){
+            int k_this = getCyclicIndex(key);
+            if(k - 1 == k_this){
+                if(key.substring(0, currentNodeID.length()-3-k).equals(currentNodeID.substring(0, currentNodeID.length()-3-k))){
+                    if(key.charAt(currentNodeID.length()-3-k) != currentNodeID.charAt(currentNodeID.length()-3-k)){
                         cubicalNeighbor = key;
-                        break;
                     }
                 }
             }
@@ -171,15 +224,14 @@ public class ServerTest {
     public static List<String> getInnerLeaf(ConcurrentHashMap<String, String> nodes, String currentNodeID) {
         int id_length = currentNodeID.length();
         List<String> matchingKeys = new ArrayList<>();
-        String prefix = currentNodeID.substring(0, id_length-1);
+        String prefix = currentNodeID.substring(0, id_length-2);
 
-        char last = currentNodeID.charAt(id_length-1);
-        int lastDigit = Integer.parseInt(String.valueOf(last));
+        int lastDigit = Integer.parseInt(currentNodeID.substring(id_length-2));
 
         for (Map.Entry<String, String> entry : nodes.entrySet()) {
             String key = entry.getKey();
-            if (key.charAt(id_length-1) != currentNodeID.charAt(id_length-1) && key.substring(0, id_length-1).equals(currentNodeID.substring(0, id_length-1))) {
-                matchingKeys.add(String.valueOf(key.charAt(id_length-1)));
+            if (!key.substring(id_length - 2).equals(currentNodeID.substring(id_length - 2)) && key.substring(0, id_length-2).equals(currentNodeID.substring(0, id_length-2))) {
+                matchingKeys.add(key.substring(id_length - 2));
             }
         }
 
@@ -247,5 +299,12 @@ public class ServerTest {
         } else {
             return minLargerValue;
         }
+    }
+
+    public static int getCubicalIndex(String id){
+        return Integer.parseInt(id.substring(0, id.length()-2));
+    }
+    public static int getCyclicIndex(String id){
+        return Integer.parseInt(id.substring(id.length()-2));
     }
 }

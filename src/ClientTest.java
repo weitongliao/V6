@@ -1,5 +1,3 @@
-import com.sun.tools.javac.comp.Todo;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -15,16 +13,23 @@ public class ClientTest {
     public static void main(String[] args) {
         Node node = new Node();
 
+        int cpu = 2;
+        int gpu = 3;
+        int ram = 4;
+        String CPU = Integer.toBinaryString(cpu);
+        String GPU = Integer.toBinaryString(gpu);
+        String RAM = Integer.toBinaryString(ram);
+        System.out.println(CPU + GPU + RAM);
+
         String serverAddress = "fe80::25c6:397:7e73:9775";
         int serverPort = 12345;
-
         int listenPort = 23456;
 
         // Initialize
         Thread listenerThread = new Thread(new ListenerThread(listenPort, node));
         listenerThread.start();
         // Todo: data要是资源量的信息
-        sendMsg("j", null, null, null,serverAddress, serverPort);
+        sendMsg("j", CPU + GPU + RAM, null, null,serverAddress, serverPort);
 
         // update neighbor info constantly
         Thread communicationThread = new Thread(new CommunicationToServerThread(serverAddress, serverPort, node));
@@ -33,9 +38,10 @@ public class ClientTest {
 
     public static void sendMsg(String header, String data, String sourceID, String senderID, String destinationIP, int port){
         HashMap<String, String> dictionary = new HashMap<>();
-        dictionary.put("H", header); // H for header, u for update neighbour, j for join, r for server reply to update from server
+        dictionary.put("H", header); // H for header, u for update neighbour, j for join, r for server reply to update from server, f for find node (routing)
         dictionary.put("D", data); // D for data
         dictionary.put("S", sourceID); // S for source ID
+        dictionary.put("DE", sourceID); // DE for destination
         dictionary.put("E", senderID); // Sender
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try {

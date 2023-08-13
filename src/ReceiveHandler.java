@@ -47,8 +47,7 @@ public class ReceiveHandler implements Runnable {
             node.setLeftInsideLeaf(new NodeID(receivedList.get(5), receivedList.get(12)));
             node.setRightInsideLeaf(new NodeID(receivedList.get(6), receivedList.get(13)));
         } else if (Objects.equals(header, "f")){
-            // TODO: 2023/8/11 routing
-            //node.routing();
+            node.routing((String) receivedMap.get("S"), (String) receivedMap.get("DE"), (String) receivedMap.get("D"));
         }
     }
 }

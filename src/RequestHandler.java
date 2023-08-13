@@ -9,6 +9,8 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RequestHandler implements Runnable {
+    // 环里最大的
+    private static final int max_count_in_ring = 9;
     private static int clientPort = 23456;
     private DatagramPacket packet;
     private ConcurrentHashMap<String, String> nodes;
@@ -38,7 +40,11 @@ public class RequestHandler implements Runnable {
         assert receivedMap != null;
         String header = (String) receivedMap.get("H");
         if (Objects.equals(header, "j")){
-            nodes.put("11010", "1.1.1.2");;
+            while(true){
+
+//                (String) receivedMap.get("D");
+            }
+//            nodes.put("11010", "1.1.1.2");
         } else if (Objects.equals(header, "u")){
             // reply update request
             String id = (String) receivedMap.get("E");
