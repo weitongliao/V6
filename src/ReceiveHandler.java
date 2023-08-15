@@ -46,8 +46,10 @@ public class ReceiveHandler implements Runnable {
             node.setCubicalNeighbor(new NodeID(receivedList.get(4), receivedList.get(11)));
             node.setLeftInsideLeaf(new NodeID(receivedList.get(5), receivedList.get(12)));
             node.setRightInsideLeaf(new NodeID(receivedList.get(6), receivedList.get(13)));
-        } else if (Objects.equals(header, "f")){
-            node.routing((String) receivedMap.get("S"), (String) receivedMap.get("DE"), (String) receivedMap.get("D"));
+        } else if (Objects.equals(header, "f") || Objects.equals(header, "e")){
+            node.routing(header, (String) receivedMap.get("S"), (String) receivedMap.get("DE"), (String) receivedMap.get("D"));
+        }else if (Objects.equals(header, "i")){
+            node.setNodeId((String) receivedMap.get("D"));
         }
     }
 }

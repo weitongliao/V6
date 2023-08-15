@@ -28,7 +28,7 @@ public class ClientTest {
         // Initialize
         Thread listenerThread = new Thread(new ListenerThread(listenPort, node));
         listenerThread.start();
-        // Todo: data要是资源量的信息
+        // data是资源量的信息
         sendMsg("j", CPU + GPU + RAM, null, null,serverAddress, serverPort);
 
         // update neighbor info constantly
@@ -38,7 +38,7 @@ public class ClientTest {
 
     public static void sendMsg(String header, String data, String sourceID, String senderID, String destinationIP, int port){
         HashMap<String, String> dictionary = new HashMap<>();
-        dictionary.put("H", header); // H for header, u for update neighbour, j for join, r for server reply to update from server, f for find node (routing)
+        dictionary.put("H", header); // H for header, u for update neighbour, j for join, r for server reply to update from server, f for find node (routing), e for echo from destination, i for return id
         dictionary.put("D", data); // D for data
         dictionary.put("S", sourceID); // S for source ID
         dictionary.put("DE", sourceID); // DE for destination

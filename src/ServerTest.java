@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,27 +19,28 @@ public class ServerTest {
     static ConcurrentHashMap<String, String> nodes = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
-//        int port = 12345;
-//
-//        try {
-//            DatagramSocket socket = new DatagramSocket(port, Inet6Address.getByName("::"));
-//            System.out.println("Server listening on port " + port);
-//
-//            while (true) {
-//                byte[] buffer = new byte[1024];
-//                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-//
-//                socket.receive(packet);
-//
-////                String request = new String(packet.getData(), 0, packet.getLength());
-////                System.out.println("Received request: " + request);
-//
-//                Thread requestHandler = new Thread(new RequestHandler(packet, nodes));
-//                requestHandler.start();
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        int port = 12345;
+
+        try {
+            DatagramSocket socket = new DatagramSocket(port, Inet6Address.getByName("::"));
+            System.out.println("Server listening on port " + port);
+
+            while (true) {
+                byte[] buffer = new byte[1024];
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
+                socket.receive(packet);
+//                InetAddress senderAddress = packet.getAddress();
+
+//                String request = new String(packet.getData(), 0, packet.getLength());
+//                System.out.println("Received request: " + request);
+
+                Thread requestHandler = new Thread(new RequestHandler(packet, nodes));
+                requestHandler.start();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 //        Node t = new Node(new NodeID("1111"),
 //                new NodeID(3, "0000", "1.1.1.1", 12345),
@@ -51,43 +53,58 @@ public class ServerTest {
 
 //        System.out.println(t.getNodeId().getCubicalIndex());
 
-        nodes.put("11111001104", "1.1.1.1");
-        nodes.put("11110101104", "1.1.1.1");
-
-        nodes.put("11111100104", "1.1.1.1");
-        nodes.put("11111101004", "1.1.1.1");
-
-        nodes.put("11011100004", "1.1.1.1");
-        nodes.put("11110100004", "1.1.1.1");
-        nodes.put("11100100004", "1.1.1.1");
-        nodes.put("11110110004", "1.1.1.1");
-
-        nodes.put("11111100003", "1.1.1.1");
-        nodes.put("11111100002", "1.1.1.1");
-
-        nodes.put("11111011108", "1.1.1.1");
-        nodes.put("11111011104", "1.1.1.1");
-
-        nodes.put("11111111004", "1.1.1.1");
-        nodes.put("11111100108", "1.1.1.1");
-        nodes.put("11111100107", "1.1.1.1");
-        nodes.put("11111101107", "1.1.1.1");
-//        nodes.put("11111100006", "1.1.1.1");
-//        nodes.put("11111100007", "1.1.1.1");
-//        nodes.put("111113", "1.1.1.2");
-//        nodes.put("010141", "1.1.1.2");
-//        nodes.put("101141", "1.1.1.2");
+//        nodes.put("111110011000004", "1.1.1.1");
+//        nodes.put("111101011000004", "1.1.1.1");
+////
+//        nodes.put("111111001000004", "1.1.1.1");
+//        nodes.put("111111010000004", "1.1.1.1");
+////
+//        nodes.put("110111000000004", "1.1.1.1");
+//        nodes.put("111101000000004", "1.1.1.1");
+//        nodes.put("111001000000004", "1.1.1.1");
+//        nodes.put("111101100000004", "1.1.1.1");
+//
+//        nodes.put("111111000000003", "1.1.1.1");
+//        nodes.put("111111000000002", "1.1.1.1");
+//
+////        nodes.put("111110111000008", "1.1.1.1");
+//        nodes.put("111110111000004", "1.1.1.1");
+//
+////        nodes.put("111111110000004", "1.1.1.1");
+//        nodes.put("111111001000008", "1.1.1.1");
+//        nodes.put("111111001000007", "1.1.1.1");
+//        nodes.put("111111011000007", "1.1.1.1");
+//        nodes.put("111111000000006", "1.1.1.1");
+//        nodes.put("111111000000007", "1.1.1.1");
 
 
-        String currentNodeID = "11111100005";
+//        nodes.put("111111000000004", "1.1.1.1");
+//        nodes.put("111111001000004", "1.1.1.1");
 
 
-        System.out.println("Left Outside Leaf: " + getLeftOutsideLeaf(nodes, currentNodeID));
-        System.out.println("Right Outside Leaf: " + getRightOutsideLeaf(nodes, currentNodeID));
-        System.out.println("Left Cyclic Neighbor: " + getLeftCyclicNeighbor(nodes, currentNodeID));
-        System.out.println("Right Cyclic Neighbor: " + getRightCyclicNeighbor(nodes, currentNodeID));
-        System.out.println("Cubical Neighbor: " + getCubicalNeighbor(nodes, currentNodeID));
-        System.out.println(getInnerLeaf(nodes, currentNodeID));
+
+//        String currentNodeID = "11111100005";
+        // left cyclic neighbor
+//        nodes.put("111111110100004", "1.1.1.1");
+//        nodes.put("111111111000004", "1.1.1.1");
+//        nodes.put("111111111100104", "1.1.1.1");
+//
+//        nodes.put("111111101100004", "1.1.1.1");
+//
+//        nodes.put("111111111100020", "1.1.1.1");
+//        nodes.put("111111111100021", "1.1.1.1");
+//        nodes.put("111111111100003", "1.1.1.1");
+//
+//        String currentNodeID = "111111111100005";
+//        String currentNodeID = "111111000000005";
+//
+//
+//        System.out.println("Left Outside Leaf: " + getLeftOutsideLeaf(nodes, currentNodeID));
+//        System.out.println("Right Outside Leaf: " + getRightOutsideLeaf(nodes, currentNodeID));
+//        System.out.println("Left Cyclic Neighbor: " + getLeftCyclicNeighbor(nodes, currentNodeID));
+//        System.out.println("Right Cyclic Neighbor: " + getRightCyclicNeighbor(nodes, currentNodeID));
+//        System.out.println("Cubical Neighbor: " + getCubicalNeighbor(nodes, currentNodeID));
+//        System.out.println(getInnerLeaf(nodes, currentNodeID));
 
     }
 
@@ -97,6 +114,7 @@ public class ServerTest {
 
         int k = getCyclicIndex(currentNodeID);
         int cubicalIndex = getCubicalIndex(currentNodeID);
+//        System.out.println(cubicalIndex);
         int diff = 0;
 
         String neighborCubic = null;
@@ -116,7 +134,7 @@ public class ServerTest {
                     }
                 }
             }
-            leftOutsideLeaf = neighborCubic + String.format("%02d", maxCyclic);
+            leftOutsideLeaf = Integer.toBinaryString(Integer.parseInt(neighborCubic)) + String.format("%02d", maxCyclic);
         }
 
 
@@ -148,7 +166,7 @@ public class ServerTest {
                     }
                 }
             }
-            leftOutsideLeaf = neighborCubic + String.format("%02d", maxCyclic);
+            leftOutsideLeaf = Integer.toBinaryString(Integer.parseInt(neighborCubic)) + String.format("%02d", maxCyclic);
         }
 
 
@@ -166,7 +184,7 @@ public class ServerTest {
 
         for (Map.Entry<String, String> entry : nodes.entrySet()) {
             String key = entry.getKey();
-            MSDB = Node.findHighestDifferentBit(String.valueOf(getCubicalIndex(key)), String.valueOf(cubicalIndex));
+            MSDB = Node.findHighestDifferentBit(Integer.toBinaryString(getCubicalIndex(key)), Integer.toBinaryString(cubicalIndex));
             diff = cubicalIndex - getCubicalIndex(key);
             if(getCyclicIndex(key) == k - 1 && MSDB <= k - 1 && diff > 0){
                 if(leftCyclicNeighbor == null || diff < minDifference){
@@ -185,16 +203,16 @@ public class ServerTest {
         String rightCyclicNeighbor = null;
         int MSDB = 0;
         int diff = 0;
-        int maxDifference = Integer.MIN_VALUE;
+        int minDifference = Integer.MAX_VALUE;
 
         for (Map.Entry<String, String> entry : nodes.entrySet()) {
             String key = entry.getKey();
-            MSDB = Node.findHighestDifferentBit(String.valueOf(getCubicalIndex(key)), String.valueOf(cubicalIndex));
+            MSDB = Node.findHighestDifferentBit(Integer.toBinaryString(getCubicalIndex(key)), Integer.toBinaryString(cubicalIndex));
             diff = cubicalIndex - getCubicalIndex(key);
             if(getCyclicIndex(key) == k - 1 && MSDB <= k - 1 && diff < 0){
-                if(rightCyclicNeighbor == null || diff > maxDifference){
+                if(rightCyclicNeighbor == null || diff < minDifference){
                     rightCyclicNeighbor = key;
-                    maxDifference = diff;
+                    minDifference = diff;
                 }
             }
         }
@@ -302,9 +320,10 @@ public class ServerTest {
     }
 
     public static int getCubicalIndex(String id){
-        return Integer.parseInt(id.substring(0, id.length()-2));
+//        System.out.println(id.substring(0, id.length()-2));
+        return Integer.parseInt(id.substring(0, id.length()-2), 2);
     }
     public static int getCyclicIndex(String id){
-        return Integer.parseInt(id.substring(id.length()-2));
+        return Integer.parseInt(id.substring(id.length()-2), 10);
     }
 }

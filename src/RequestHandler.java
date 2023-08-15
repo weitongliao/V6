@@ -2,18 +2,17 @@ import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet6Address;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RequestHandler implements Runnable {
     // 环里最大的
-    private static final int max_count_in_ring = 9;
+    // TODO: 2023/8/15 服务器还要处理节点离开 写出节点发布资源需求的方法 
+    private static final int max_count_in_ring = 14;
     private static int clientPort = 23456;
     private DatagramPacket packet;
     private ConcurrentHashMap<String, String> nodes;
+    private ConcurrentHashMap<String, Integer> counts;
 
     public RequestHandler(DatagramPacket packet, ConcurrentHashMap<String, String> nodes) {
         this.packet = packet;
@@ -40,10 +39,26 @@ public class RequestHandler implements Runnable {
         assert receivedMap != null;
         String header = (String) receivedMap.get("H");
         if (Objects.equals(header, "j")){
+            //cpu 000 gpu 000 ram 000 大间距0 随机簇000 index00 12位必须 加三位随机 15
+            String resourceID = (String) receivedMap.get("D");
+            String id = "";
             while(true){
-
-//                (String) receivedMap.get("D");
+                String randomPad = generateRandomBinary(3);
+                if(counts.containsKey(resourceID+"0"+randomPad)){
+                    int count = counts.get(resourceID+"0"+randomPad);
+                    if (count < 15){
+                        counts.put(resourceID+"0"+randomPad, count + 1);
+                        id = resourceID+"0"+randomPad+String.format("%02d", (max_count_in_ring-count));
+                        break;
+                    }
+                }else{
+                    counts.put(resourceID+"0"+randomPad, 1);
+                    id = resourceID+"0"+randomPad+String.format("%02d", max_count_in_ring);
+                    break;
+                }
             }
+            nodes.put(id, String.valueOf(packet.getAddress()));
+            sendMsg("i", id, null, null, String.valueOf(packet.getAddress()), clientPort);
 //            nodes.put("11010", "1.1.1.2");
         } else if (Objects.equals(header, "u")){
             // reply update request
@@ -81,5 +96,21 @@ public class RequestHandler implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static String generateRandomBinary(int bitCount) {
+        if (bitCount <= 0) {
+            throw new IllegalArgumentException("Bit count must be positive.");
+        }
+
+        Random random = new Random();
+        StringBuilder binaryBuilder = new StringBuilder();
+
+        for (int i = 0; i < bitCount; i++) {
+            int bit = random.nextInt(2); // 生成0或1
+            binaryBuilder.append(bit);
+        }
+
+        return binaryBuilder.toString();
     }
 }
