@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerTest {
+    // TODO: 2023/8/16 验证是否可以模糊查询 节点离开 安卓
+    // TODO: 2023/8/16 模糊查询时节点生成随机id 前9位是所需资源量的标识符 加上0 所以前10位不是随机的，后面位数是随机的 加随机三位 加上0到12最大环中个数的随机数
+    // TODO: 2023/8/16 目前还无法解决节点离开问题
     //    ID and IP mapping
     // ConcurrentHashMap有什么缺陷吗？
     //ConcurrentHashMap 是设计为非阻塞的。
@@ -17,6 +20,7 @@ public class ServerTest {
     // 同步读取操作则是完全非阻塞的。
     // 好处是在保证合理的同步前提下，效率很高。坏处是严格来说读取操作不能保证反映最近的更新
     static ConcurrentHashMap<String, String> nodes = new ConcurrentHashMap<>();
+    static ConcurrentHashMap<String, Integer> counts = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
         int port = 12345;
@@ -35,7 +39,7 @@ public class ServerTest {
 //                String request = new String(packet.getData(), 0, packet.getLength());
 //                System.out.println("Received request: " + request);
 
-                Thread requestHandler = new Thread(new RequestHandler(packet, nodes));
+                Thread requestHandler = new Thread(new RequestHandler(packet, nodes, counts));
                 requestHandler.start();
             }
         } catch (IOException e) {
@@ -91,11 +95,11 @@ public class ServerTest {
 //
 //        nodes.put("111111101100004", "1.1.1.1");
 //
-//        nodes.put("111111111100020", "1.1.1.1");
-//        nodes.put("111111111100021", "1.1.1.1");
+//        nodes.put("010011100000012", "1.1.1.1");
+//        nodes.put("010011100000011", "1.1.1.1");
 //        nodes.put("111111111100003", "1.1.1.1");
 //
-//        String currentNodeID = "111111111100005";
+//        String currentNodeID = "010011100001112";
 //        String currentNodeID = "111111000000005";
 //
 //

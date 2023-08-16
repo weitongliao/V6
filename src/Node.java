@@ -10,6 +10,17 @@ public class Node {
     private NodeID rightInsideLeaf;
     private NodeID leftOutsideLeaf;
     private NodeID rightOutsideLeaf;
+    private String ip;
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+
 
     public synchronized String getNodeId() {
         return nodeId;
@@ -85,10 +96,12 @@ public class Node {
         this.rightInsideLeaf = null;
         this.leftOutsideLeaf = null;
         this.rightOutsideLeaf = null;
+        this.ip = null;
     }
 
-    public Node(String nodeId, NodeID cubicalNeighbor, NodeID leftCyclicNeighbor, NodeID rightCyclicNeighbor, NodeID leftInsideLeaf, NodeID rightInsideLeaf, NodeID leftOutsideLeaf, NodeID rightOutsideLeaf) {
+    public Node(String nodeId, String ip, NodeID cubicalNeighbor, NodeID leftCyclicNeighbor, NodeID rightCyclicNeighbor, NodeID leftInsideLeaf, NodeID rightInsideLeaf, NodeID leftOutsideLeaf, NodeID rightOutsideLeaf) {
         this.nodeId = nodeId;
+        this.ip = ip;
         this.cubicalNeighbor = cubicalNeighbor;
         this.leftCyclicNeighbor = leftCyclicNeighbor;
         this.rightCyclicNeighbor = rightCyclicNeighbor;
@@ -99,20 +112,27 @@ public class Node {
     }
 
     public void routing(String header, String source, String destination, String data){
-        System.out.println(destination);
+//        System.out.println(header+" "+source+" "+destination);
         // current node is destination, return
-        if(Objects.equals(destination, this.nodeId)){
-            return;
-        }
+//        if(Objects.equals(destination, this.nodeId)){
+//            return;
+//        }
 
         int k = Integer.parseInt(this.nodeId.substring(nodeId.length() - 2));
 //        int k = Integer.parseInt(String.valueOf(this.nodeId.charAt(nodeId.length() - 1)));
         int MSDB = findHighestDifferentBit(this.nodeId.substring(0, nodeId.length() - 2), destination.substring(0, nodeId.length() - 2));
-        if(k == -1){
+//        System.out.println(MSDB);
+        if(MSDB == -1){
             // TODO: 2023/8/13
             //routing();
-            //返回结果给source
-            this.routing("e", this.nodeId, source, this.nodeId);
+            //id一样 返回结果给source f说明找的是自己
+            if(Objects.equals(header, "f")){
+                this.routing("e", this.nodeId, source, this.ip);
+            }else if(Objects.equals(header, "e")){
+                // 因为路由算法的原因，echo这里的显示可能不准确
+                System.out.println("get echo from (maybe)" + source+" ip:"+data);
+            }
+
 //            ClientTest.sendMsg("e", this.nodeId, this.nodeId, source, this.leftOutsideLeaf.getIp(), clientPort);
         }
         else if(k < MSDB){
@@ -125,54 +145,54 @@ public class Node {
     }
 
     // k < MSDB, send request to outside leaf
-    private void ascending(String header, String source, String destination, String data){
+    private void ascending(String header, String source, String destinationID, String data){
         if(this.leftOutsideLeaf != null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, this.leftOutsideLeaf.getIp(), clientPort);
+            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftOutsideLeaf.getIp(), clientPort);
 //            sendRequest(this.leftOutsideLeaf, "");
         }else if (this.rightOutsideLeaf != null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, this.rightOutsideLeaf.getIp(), clientPort);
+            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightOutsideLeaf.getIp(), clientPort);
 //            sendRequest(this.rightOutsideLeaf, "");
         }else{
             // TODO: 2023/8/10
             //routing();
-            this.routing(header, this.nodeId, source, this.nodeId);
+            this.routing("e", this.nodeId, source, this.ip);
             //返回结果给source
         }
 
     }
 
     // k = MSDB, send request to cubical neighbor
-    private void descending(String header, String source, String destination, String data, int k, int MSDB){
+    private void descending(String header, String source, String destinationID, String data, int k, int MSDB){
         if(k==MSDB && this.cubicalNeighbor != null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, this.cubicalNeighbor.getIp(), clientPort);
+            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.cubicalNeighbor.getIp(), clientPort);
 //            sendRequest(this.cubicalNeighbor, "");
         }else if (this.leftCyclicNeighbor != null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, this.leftCyclicNeighbor.getIp(), clientPort);
+            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftCyclicNeighbor.getIp(), clientPort);
         }else if(this.rightCyclicNeighbor != null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, this.rightCyclicNeighbor.getIp(), clientPort);
+            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightCyclicNeighbor.getIp(), clientPort);
         }else if(this.leftInsideLeaf != null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, this.leftInsideLeaf.getIp(), clientPort);
+            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
         }else if(this.rightInsideLeaf != null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, this.rightInsideLeaf.getIp(), clientPort);
+            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
         }else {
             // TODO: 2023/8/11 return to source
-            this.routing(header, this.nodeId, source, this.nodeId);
+            this.routing("e", this.nodeId, source, this.ip);
         }
         
     }
 
-    private void traverseCycle(String header, String source, String destination, String data){
+    private void traverseCycle(String header, String source, String destinationID, String data){
         if(this.leftInsideLeaf == null && this.rightInsideLeaf == null){
             // TODO: 2023/8/10 return to source
-            this.routing(header, this.nodeId, source, this.nodeId);
+            this.routing("e", this.nodeId, source, this.ip);
         } else if (this.leftInsideLeaf == null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, this.rightInsideLeaf.getIp(), clientPort);
+            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
 //            sendRequest(this.rightInsideLeaf, "");
         } else if (this.rightInsideLeaf == null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, this.leftInsideLeaf.getIp(), clientPort);
+            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
 //            sendRequest(this.leftInsideLeaf, "");
         } else {
-            int targetValue = Integer.parseInt(destination);
+            int targetValue = Integer.parseInt(destinationID);
             int value1 = Integer.parseInt(this.leftInsideLeaf.getId());
             int value2 = Integer.parseInt(this.rightInsideLeaf.getId());
 
@@ -180,11 +200,11 @@ public class Node {
             int diff2 = Math.abs(targetValue - value2);
 
             if (diff1 < diff2) {
-                ClientTest.sendMsg(header, data, source, this.nodeId, this.leftInsideLeaf.getIp(), clientPort);
+                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
 //                sendRequest(this.leftInsideLeaf, "");
             } else {
                 // TODO data中包含source节点需要的资源量
-                ClientTest.sendMsg(header, data, source, this.nodeId, this.rightInsideLeaf.getIp(), clientPort);
+                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
 //                sendRequest(this.rightInsideLeaf, "");
             }
         }

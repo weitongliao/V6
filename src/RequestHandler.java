@@ -2,25 +2,29 @@ import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RequestHandler implements Runnable {
     // 环里最大的
     // TODO: 2023/8/15 服务器还要处理节点离开 写出节点发布资源需求的方法 
-    private static final int max_count_in_ring = 14;
+    private static final int max_count_in_ring = 12;
     private static int clientPort = 23456;
     private DatagramPacket packet;
     private ConcurrentHashMap<String, String> nodes;
     private ConcurrentHashMap<String, Integer> counts;
 
-    public RequestHandler(DatagramPacket packet, ConcurrentHashMap<String, String> nodes) {
+    public RequestHandler(DatagramPacket packet, ConcurrentHashMap<String, String> nodes, ConcurrentHashMap<String, Integer> counts) {
         this.packet = packet;
         this.nodes = nodes;
+        this.counts = counts;
     }
 
     @Override
     public void run() {
+        InetAddress senderAddress = packet.getAddress();
+        String senderIpv6Address = ((Inet6Address) senderAddress).getHostAddress();
         ByteArrayInputStream byteStream = new ByteArrayInputStream(packet.getData());
         java.util.HashMap<?, ?> receivedMap = null;
         try {
@@ -48,6 +52,7 @@ public class RequestHandler implements Runnable {
                     int count = counts.get(resourceID+"0"+randomPad);
                     if (count < 15){
                         counts.put(resourceID+"0"+randomPad, count + 1);
+
                         id = resourceID+"0"+randomPad+String.format("%02d", (max_count_in_ring-count));
                         break;
                     }
@@ -57,8 +62,10 @@ public class RequestHandler implements Runnable {
                     break;
                 }
             }
-            nodes.put(id, String.valueOf(packet.getAddress()));
-            sendMsg("i", id, null, null, String.valueOf(packet.getAddress()), clientPort);
+            nodes.put(id, senderIpv6Address);
+//            System.out.println(counts);
+//            System.out.println(nodes);
+            sendMsg("i", id+","+senderIpv6Address, null, null, senderIpv6Address, clientPort);
 //            nodes.put("11010", "1.1.1.2");
         } else if (Objects.equals(header, "u")){
             // reply update request
@@ -70,9 +77,14 @@ public class RequestHandler implements Runnable {
             results.add(ServerTest.getRightCyclicNeighbor(nodes, id));
             results.add(ServerTest.getCubicalNeighbor(nodes, id));
             results.addAll(ServerTest.getInnerLeaf(nodes, id));
-            for (String nid : results) {
-                results.add(nodes.get(nid));
+            for (int i = 0; i < 7; i++) {
+                if(results.get(i) == null){
+                    results.add(null);
+                }else {
+                    results.add(nodes.get(results.get(i)));
+                }
             }
+
             sendMsg("r", results.toString(), null, null, nodes.get(id), clientPort);
         }
     }
