@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Node {
+public class TestNode {
     private int clientPort = 23456;
     private String nodeId;
     private NodeID cubicalNeighbor;
@@ -89,7 +89,7 @@ public class Node {
     }
 
 
-    public Node(){
+    public TestNode(){
         this.nodeId = null;
         this.cubicalNeighbor = null;
         this.leftCyclicNeighbor = null;
@@ -101,7 +101,7 @@ public class Node {
         this.ip = null;
     }
 
-    public Node(String nodeId, String ip, NodeID cubicalNeighbor, NodeID leftCyclicNeighbor, NodeID rightCyclicNeighbor, NodeID leftInsideLeaf, NodeID rightInsideLeaf, NodeID leftOutsideLeaf, NodeID rightOutsideLeaf) {
+    public TestNode(String nodeId, String ip, NodeID cubicalNeighbor, NodeID leftCyclicNeighbor, NodeID rightCyclicNeighbor, NodeID leftInsideLeaf, NodeID rightInsideLeaf, NodeID leftOutsideLeaf, NodeID rightOutsideLeaf) {
         this.nodeId = nodeId;
         this.ip = ip;
         this.cubicalNeighbor = cubicalNeighbor;
@@ -122,11 +122,9 @@ public class Node {
 
         int k = Integer.parseInt(this.nodeId.substring(nodeId.length() - 2));
 //        int k = Integer.parseInt(String.valueOf(this.nodeId.charAt(nodeId.length() - 1)));
-        int MSDB = findHighestDifferentBit(this.nodeId.substring(0, nodeId.length() - 2), destination.substring(0, destination.length() - 2));
-//        System.out.println(MSDB);
+        int MSDB = findHighestDifferentBit(this.nodeId.substring(0, nodeId.length() - 2), destination.substring(0, nodeId.length() - 2));
+        System.out.println("route: "+MSDB);
         if(MSDB == -1){
-            //routing();
-            //id一样 返回结果给source f说明找的是自己
             if(this.nodeId.substring(nodeId.length() - 2).equals(destination.substring(destination.length() - 2)) && Objects.equals(header, "f")){
                 System.out.println("current node is destination, return echo");
                 this.routing("e", this.nodeId, source, this.ip);
@@ -138,12 +136,11 @@ public class Node {
             }
 
 //            ClientTest.sendMsg("e", this.nodeId, this.nodeId, source, this.leftOutsideLeaf.getIp(), clientPort);
-        }
-        else if(k < MSDB){
+        } else if(k < MSDB){
             ascending(header, source, destination, data);
-        }else if(k > MSDB){
+        } else if(k > MSDB){
             descending(header, source, destination, data, k, MSDB);
-        }else {
+        } else {
             sendToCubicNeighbor(header, source, destination, data);
         }
     }
@@ -151,10 +148,13 @@ public class Node {
     // k = MSDB
     private void sendToCubicNeighbor(String header, String source, String destinationID, String data){
         if(this.getLeftCyclicNeighbor() != null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftCyclicNeighbor.getIp(), clientPort);
+            System.out.println(this.getLeftCyclicNeighbor().getId());
+//            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftCyclicNeighbor.getIp(), clientPort);
         } else if (this.getRightCyclicNeighbor() != null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightCyclicNeighbor.getIp(), clientPort);
+            System.out.println(this.getRightCyclicNeighbor().getId());
+//            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightCyclicNeighbor.getIp(), clientPort);
         } else {
+//            System.out.println("sendToCubicNeighbor return to source "+this.nodeId);
             traverseCycle(header, source, destinationID, data);
 //            this.routing("e", this.nodeId, source, this.ip);
         }
@@ -162,22 +162,10 @@ public class Node {
 
     // k < MSDB, send request to outside leaf
     private void ascending(String header, String source, String destinationID, String data){
-//        if(this.leftOutsideLeaf != null){
-//            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftOutsideLeaf.getIp(), clientPort);
-////            sendRequest(this.leftOutsideLeaf, "");
-//        }else if (this.rightOutsideLeaf != null){
-//            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightOutsideLeaf.getIp(), clientPort);
-////            sendRequest(this.rightOutsideLeaf, "");
-//        }else{
-//            // TODO: 2023/8/10
-//            //routing();
-//            this.routing("e", this.nodeId, source, this.ip);
-//            //返回结果给source
-//        }
-
         if(this.leftOutsideLeaf == null && this.rightOutsideLeaf == null){
             // TODO: 2023/8/10
             //routing();
+            System.out.println("ascend return");
             this.routing("e", this.nodeId, source, this.ip);
             //返回结果给source
         }else if(this.leftOutsideLeaf == null){
@@ -194,37 +182,25 @@ public class Node {
             int diff2 = Math.abs(targetValue - value2);
 
             if (diff1 < diff2) {
-                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftOutsideLeaf.getIp(), clientPort);
+                System.out.println(this.leftOutsideLeaf.getId());
+//                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftOutsideLeaf.getIp(), clientPort);
 //                sendRequest(this.leftInsideLeaf, "");
             } else {
                 // TODO data中包含source节点需要的资源量
-                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightOutsideLeaf.getIp(), clientPort);
+                System.out.println(this.rightOutsideLeaf.getId());
+//                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightOutsideLeaf.getIp(), clientPort);
 //                sendRequest(this.rightInsideLeaf, "");
             }
         }
 
     }
 
-    // k > MSDB, send request to cubical neighbor the request is forwarded to the cubical neighbor,
-    // otherwise the request is forwarded to the cyclic neighbor or inside leaf set node, whichever is closer to the target
+    // k = MSDB, send request to cubical neighbor
     private void descending(String header, String source, String destinationID, String data, int k, int MSDB){
-//        if(k==MSDB && this.cubicalNeighbor != null){
-//            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.cubicalNeighbor.getIp(), clientPort);
-////            sendRequest(this.cubicalNeighbor, "");
-//        }else
-//        if (this.leftCyclicNeighbor != null ){
-//            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftCyclicNeighbor.getIp(), clientPort);
-//        }else if(this.rightCyclicNeighbor != null){
-//            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightCyclicNeighbor.getIp(), clientPort);
-//        }
-//        else if(this.leftInsideLeaf != null){
-//            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
-//        }else if(this.rightInsideLeaf != null){
-//            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
-//        }
         List<NodeID> candidate = new ArrayList<>();
         if (this.leftCyclicNeighbor == null && this.rightCyclicNeighbor == null && this.leftInsideLeaf == null && this.rightInsideLeaf == null){
             // TODO: 2023/8/11 return to source
+            System.out.println("descend return");
             this.routing("e", this.nodeId, source, this.ip);
         }
         else {
@@ -252,31 +228,35 @@ public class Node {
                     minDiff = diff;
                 }
             }
-
-            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, minNode.getIp(), clientPort);
+            System.out.println(minNode.getId());
+//            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, minNode.getIp(), clientPort);
         }
 
-        
     }
 
     private void traverseCycle(String header, String source, String destinationID, String data){
         if(this.leftInsideLeaf == null && this.rightInsideLeaf == null){
             // TODO: 2023/8/10 return to source
+            System.out.println("traver return");
             this.routing("e", this.nodeId, source, this.ip);
         } else if (this.leftInsideLeaf == null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
+            System.out.println(this.rightInsideLeaf.getId());
+//            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
 //            sendRequest(this.rightInsideLeaf, "");
         } else if (this.rightInsideLeaf == null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
+            System.out.println(this.leftInsideLeaf.getId());
+//            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
 //            sendRequest(this.leftInsideLeaf, "");
         } else {
             // left inside leaf is destination
             if (Objects.equals(destinationID, this.leftInsideLeaf.getId())){
-                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
+                System.out.println(this.leftInsideLeaf.getId());
+//                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
             }
             // left inside leaf is destination
             else if (Objects.equals(destinationID, this.rightInsideLeaf.getId())){
-                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
+                System.out.println(this.rightInsideLeaf.getId());
+//                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
             }
             // closer node
             else {
@@ -289,11 +269,13 @@ public class Node {
                 int diff2 = Math.abs(targetValue - value2);
 
                 if (diff1 < diff2) {
-                    ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
+                    System.out.println(this.leftInsideLeaf.getId());
+//                    ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
 //                sendRequest(this.leftInsideLeaf, "");
                 } else {
                     // TODO data中包含source节点需要的资源量
-                    ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
+                    System.out.println(this.rightInsideLeaf.getId());
+//                    ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
 //                sendRequest(this.rightInsideLeaf, "");
                 }
             }
@@ -307,9 +289,6 @@ public class Node {
 
     public static int findHighestDifferentBit(String str1, String str2) {
         int length = Math.min(str1.length(), str2.length());
-        if(str1.length() != str2.length()){
-            System.out.println("--------------------------warn--------------------------");
-        }
 
         for (int i = 0; i < length; i++) {
             if (str1.charAt(i) != str2.charAt(i)) {

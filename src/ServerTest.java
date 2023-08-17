@@ -3,17 +3,14 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet6Address;
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerTest {
     // TODO: 2023/8/16 验证是否可以模糊查询 节点离开 安卓
     // TODO: 2023/8/16 模糊查询时节点生成随机id 前9位是所需资源量的标识符 加上0 所以前10位不是随机的，后面位数是随机的 加随机三位 加上0到12最大环中个数的随机数
     // TODO: 2023/8/16 目前还无法解决节点离开问题
-    //    ID and IP mapping
+    // ID and IP mapping
     // ConcurrentHashMap有什么缺陷吗？
     //ConcurrentHashMap 是设计为非阻塞的。
     // 在更新时会局部锁住某部分数据，但不会把整个表都锁住。
@@ -21,9 +18,11 @@ public class ServerTest {
     // 好处是在保证合理的同步前提下，效率很高。坏处是严格来说读取操作不能保证反映最近的更新
     static ConcurrentHashMap<String, String> nodes = new ConcurrentHashMap<>();
     static ConcurrentHashMap<String, Integer> counts = new ConcurrentHashMap<>();
+    static int cubicLength = 13;
 
     public static void main(String[] args) {
         int port = 12345;
+
 
         try {
             DatagramSocket socket = new DatagramSocket(port, Inet6Address.getByName("::"));
@@ -126,19 +125,20 @@ public class ServerTest {
             diff = cubicalIndex - getCubicalIndex(id);
             if(diff > 0 && diff < minDifference){
                 minDifference = diff;
-                neighborCubic = String.valueOf(getCubicalIndex(id));
+//                neighborCubic = String.valueOf(getCubicalIndex(id));
+                neighborCubic = id.substring(0, id.length()-2);
             }
         }
         if(neighborCubic != null){
             int maxCyclic = -1;
             for(String id: nodes.keySet()){
-                if(String.valueOf(getCubicalIndex(id)).equals(neighborCubic)){
+                if(id.substring(0, id.length()-2).equals(neighborCubic)){
                     if (getCyclicIndex(id) > maxCyclic){
                         maxCyclic = getCyclicIndex(id);
                     }
                 }
             }
-            leftOutsideLeaf = Integer.toBinaryString(Integer.parseInt(neighborCubic)) + String.format("%02d", maxCyclic);
+            leftOutsideLeaf = neighborCubic + String.format("%02d", maxCyclic);
         }
 
 
@@ -158,19 +158,19 @@ public class ServerTest {
             diff =  getCubicalIndex(id) - cubicalIndex;
             if(diff > 0 && diff < minDifference){
                 minDifference = diff;
-                neighborCubic = String.valueOf(getCubicalIndex(id));
+                neighborCubic = id.substring(0, id.length()-2);
             }
         }
         if(neighborCubic != null){
             int maxCyclic = -1;
             for(String id: nodes.keySet()){
-                if(String.valueOf(getCubicalIndex(id)).equals(neighborCubic)){
+                if(id.substring(0, id.length()-2).equals(neighborCubic)){
                     if (getCyclicIndex(id) > maxCyclic){
                         maxCyclic = getCyclicIndex(id);
                     }
                 }
             }
-            leftOutsideLeaf = Integer.toBinaryString(Integer.parseInt(neighborCubic)) + String.format("%02d", maxCyclic);
+            leftOutsideLeaf = neighborCubic + String.format("%02d", maxCyclic);
         }
 
 
@@ -188,7 +188,7 @@ public class ServerTest {
 
         for (Map.Entry<String, String> entry : nodes.entrySet()) {
             String key = entry.getKey();
-            MSDB = Node.findHighestDifferentBit(Integer.toBinaryString(getCubicalIndex(key)), Integer.toBinaryString(cubicalIndex));
+            MSDB = Node.findHighestDifferentBit(padString(Integer.toBinaryString(getCubicalIndex(key)), cubicLength), padString(Integer.toBinaryString(cubicalIndex), cubicLength));
             diff = cubicalIndex - getCubicalIndex(key);
             if(getCyclicIndex(key) == k - 1 && MSDB <= k - 1 && diff > 0){
                 if(leftCyclicNeighbor == null || diff < minDifference){
@@ -211,7 +211,8 @@ public class ServerTest {
 
         for (Map.Entry<String, String> entry : nodes.entrySet()) {
             String key = entry.getKey();
-            MSDB = Node.findHighestDifferentBit(Integer.toBinaryString(getCubicalIndex(key)), Integer.toBinaryString(cubicalIndex));
+            MSDB = Node.findHighestDifferentBit(padString(Integer.toBinaryString(getCubicalIndex(key)), cubicLength), padString(Integer.toBinaryString(cubicalIndex), cubicLength));
+//            System.out.println(MSDB+" "+Integer.toBinaryString(getCubicalIndex(key))+" "+Integer.toBinaryString(cubicalIndex));
             diff = cubicalIndex - getCubicalIndex(key);
             if(getCyclicIndex(key) == k - 1 && MSDB <= k - 1 && diff < 0){
                 if(rightCyclicNeighbor == null || diff < minDifference){
@@ -269,8 +270,8 @@ public class ServerTest {
         }
 
         List<String> leaf = new ArrayList<>();
-        leaf.add(prefix.concat(String.valueOf(findSmallerOrMax(matchingKeys, lastDigit))));
-        leaf.add(prefix.concat(String.valueOf(findLargerOrMin(matchingKeys, lastDigit))));
+        leaf.add(prefix.concat(String.format("%02d", findSmallerOrMax(matchingKeys, lastDigit))));
+        leaf.add(prefix.concat(String.format("%02d", findLargerOrMin(matchingKeys, lastDigit))));
 
         return leaf;
     }
@@ -329,5 +330,16 @@ public class ServerTest {
     }
     public static int getCyclicIndex(String id){
         return Integer.parseInt(id.substring(id.length()-2), 10);
+    }
+
+    public static String padString(String input, int length) {
+        if (input.length() >= length) {
+            return input; // 字符串长度已达到或超过目标长度，不需要补全
+        }
+
+        int paddingLength = length - input.length();
+        String padding = String.join("", Collections.nCopies(paddingLength, "0")); // 使用0进行补全
+
+        return padding + input;
     }
 }
