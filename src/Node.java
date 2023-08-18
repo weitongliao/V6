@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class Node {
+    private static int maxNodes = 13;
     private int clientPort = 23456;
     private String nodeId;
     private NodeID cubicalNeighbor;
@@ -150,12 +151,25 @@ public class Node {
 
     // k = MSDB
     private void sendToCubicNeighbor(String header, String source, String destinationID, String data){
-        if(this.getLeftCyclicNeighbor() != null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftCyclicNeighbor.getIp(), clientPort);
-        } else if (this.getRightCyclicNeighbor() != null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightCyclicNeighbor.getIp(), clientPort);
+//        if(this.getLeftCyclicNeighbor() != null){
+//            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftCyclicNeighbor.getIp(), clientPort);
+//        } else if (this.getRightCyclicNeighbor() != null){
+//            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightCyclicNeighbor.getIp(), clientPort);
+//        } else {
+//            traverseCycle(header, source, destinationID, data);
+////            this.routing("e", this.nodeId, source, this.ip);
+//        }
+        if(this.getCubicalNeighbor() != null){
+            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.cubicalNeighbor.getIp(), clientPort);
         } else {
-            traverseCycle(header, source, destinationID, data);
+            if (this.leftInsideLeaf == null && this.rightInsideLeaf == null && this.leftOutsideLeaf == null && this.rightOutsideLeaf == null){
+                this.routing("e", this.nodeId, source, this.ip);
+            }
+            else{
+                sendToNearestLeaf(this.leftInsideLeaf, this.rightInsideLeaf, this.leftOutsideLeaf, this.rightOutsideLeaf, header, source, destinationID, data);
+            }
+
+//            traverseCycle(header, source, destinationID, data);
 //            this.routing("e", this.nodeId, source, this.ip);
         }
     }
@@ -174,6 +188,13 @@ public class Node {
 //            this.routing("e", this.nodeId, source, this.ip);
 //            //返回结果给source
 //        }
+        List<String> candidate = new ArrayList<>();
+        candidate.add(this.leftOutsideLeaf.getId());
+        candidate.add(this.rightOutsideLeaf.getId());
+        if (isNearestToDestination(this.nodeId, destinationID, candidate)){
+            // 比所以的内叶都离destination近，返回
+            this.routing("e", this.nodeId, source, this.ip);
+        }
 
         if(this.leftOutsideLeaf == null && this.rightOutsideLeaf == null){
             // TODO: 2023/8/10
@@ -222,53 +243,101 @@ public class Node {
 //        }else if(this.rightInsideLeaf != null){
 //            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
 //        }
+
+//        System.out.println("descend");
+
         List<NodeID> candidate = new ArrayList<>();
-        if (this.leftCyclicNeighbor == null && this.rightCyclicNeighbor == null && this.leftInsideLeaf == null && this.rightInsideLeaf == null){
+        List<String> candidateID = new ArrayList<>();
+        if (this.leftCyclicNeighbor == null && this.rightCyclicNeighbor == null && this.leftInsideLeaf == null && this.rightInsideLeaf == null && this.leftOutsideLeaf == null && this.rightOutsideLeaf == null){
             // TODO: 2023/8/11 return to source
+//            System.out.println("descend return");
             this.routing("e", this.nodeId, source, this.ip);
         }
         else {
             if(this.leftCyclicNeighbor != null ){
                 candidate.add(this.leftCyclicNeighbor);
+                candidateID.add(this.leftCyclicNeighbor.getId());
             }
             if(this.rightCyclicNeighbor != null){
                 candidate.add(this.rightCyclicNeighbor);
+                candidateID.add(this.rightCyclicNeighbor.getId());
             }
             if(this.leftInsideLeaf != null){
                 candidate.add(this.leftInsideLeaf);
+                candidateID.add(this.leftInsideLeaf.getId());
             }
             if(this.rightInsideLeaf != null){
                 candidate.add(this.rightInsideLeaf);
+                candidateID.add(this.rightInsideLeaf.getId());
             }
-            int minDiff = Integer.MAX_VALUE;
-            NodeID minNode = null;
-            int destCubic = Integer.parseInt(destinationID.substring(0, destinationID.length()-2), 2);
-            for (NodeID nodeID : candidate) {
-//                System.out.println(nodeID.getId());
-                int tempCubic = Integer.parseInt(nodeID.getId().substring(0, nodeID.getId().length()-2), 2);
-                int diff = Math.abs(tempCubic - destCubic);
-                if (diff < minDiff) {
-                    minNode = nodeID;
-                    minDiff = diff;
-                }
+            if(this.leftOutsideLeaf != null){
+                candidate.add(this.leftOutsideLeaf);
+                candidateID.add(this.leftOutsideLeaf.getId());
+            }
+            if(this.rightOutsideLeaf != null){
+                candidate.add(this.rightOutsideLeaf);
+                candidateID.add(this.rightOutsideLeaf.getId());
             }
 
-            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, minNode.getIp(), clientPort);
+            if (isNearestToDestination(this.nodeId, destinationID, candidateID)){
+//                System.out.println("descend return");
+                this.routing("e", this.nodeId, source, this.ip);
+            }else {
+                int minDiff = Integer.MAX_VALUE;
+                NodeID minNode = null;
+                int destCubic = Integer.parseInt(destinationID.substring(0, destinationID.length()-2), 2);
+                for (NodeID nodeID : candidate) {
+                    int tempCubic = Integer.parseInt(nodeID.getId().substring(0, nodeID.getId().length()-2), 2);
+                    int diff = Math.abs(tempCubic - destCubic);
+                    if (diff < minDiff) {
+                        minNode = nodeID;
+                        minDiff = diff;
+                    }
+                }
+
+//                System.out.println("descend to :"+minNode.getId());
+                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, minNode.getIp(), clientPort);
+            }
         }
 
-        
+
     }
 
     private void traverseCycle(String header, String source, String destinationID, String data){
         if(this.leftInsideLeaf == null && this.rightInsideLeaf == null){
             // TODO: 2023/8/10 return to source
+            System.out.println("traverse return");
             this.routing("e", this.nodeId, source, this.ip);
+            return;
         } else if (this.leftInsideLeaf == null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
+            List<String> candidate = new ArrayList<>();
+            candidate.add(this.getRightInsideLeaf().getId());
+            if (isNearestToDestination(this.nodeId, destinationID, candidate)){
+                this.routing("e", this.nodeId, source, this.ip);
+                return;
+            }else {
+                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
+                return;
+            }
 //            sendRequest(this.rightInsideLeaf, "");
         } else if (this.rightInsideLeaf == null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
+            List<String> candidate = new ArrayList<>();
+            candidate.add(this.getLeftInsideLeaf().getId());
+            if (isNearestToDestination(this.nodeId, destinationID, candidate)){
+                this.routing("e", this.nodeId, source, this.ip);
+                return;
+            }else {
+                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
+                return;
+            }
 //            sendRequest(this.leftInsideLeaf, "");
+        }
+
+        List<String> candidate = new ArrayList<>();
+        candidate.add(this.getLeftInsideLeaf().getId());
+        candidate.add(this.getRightInsideLeaf().getId());
+        if (isNearestToDestination(this.nodeId, destinationID, candidate)){
+            this.routing("e", this.nodeId, source, this.ip);
         } else {
             // left inside leaf is destination
             if (Objects.equals(destinationID, this.leftInsideLeaf.getId())){
@@ -297,7 +366,6 @@ public class Node {
 //                sendRequest(this.rightInsideLeaf, "");
                 }
             }
-
         }
     }
 
@@ -318,6 +386,56 @@ public class Node {
         }
 
         return -1; // No difference found
+    }
+
+    public static boolean isNearestToDestination(String currentNode, String destination, List<String> otherNodes){
+        int currentMSDB = findHighestDifferentBit(currentNode, destination);
+        int minMSDB = Integer.MAX_VALUE;
+        String minID = "";
+        for (String candidate: otherNodes) {
+            int tempMSDB = findHighestDifferentBit(candidate, destination);
+            if(tempMSDB < minMSDB){
+                minMSDB = tempMSDB;
+                minID = candidate;
+            }
+        }
+        if (currentMSDB < minMSDB){
+            return true;
+        } else if (currentMSDB == minMSDB){
+            return Integer.parseInt(currentNode.substring(currentNode.length() - 2)) < Integer.parseInt(minID.substring(minID.length() - 2));
+        }else {
+            return false;
+        }
+    }
+
+    private void sendToNearestLeaf(NodeID leftInsideLeaf, NodeID rightInsideLeaf, NodeID leftOutsideLeaf, NodeID rightOutsideLeafString, String header, String source, String destinationID, String data){
+        List<NodeID> candidate = new ArrayList<>();
+        if(this.leftCyclicNeighbor != null ){
+            candidate.add(this.leftCyclicNeighbor);
+        }
+        if(this.rightCyclicNeighbor != null){
+            candidate.add(this.rightCyclicNeighbor);
+        }
+        if(this.leftInsideLeaf != null){
+            candidate.add(this.leftInsideLeaf);
+        }
+        if(this.rightInsideLeaf != null){
+            candidate.add(this.rightInsideLeaf);
+        }
+        int minDiff = Integer.MAX_VALUE;
+        NodeID minNode = null;
+        int destCubic = Integer.parseInt(destinationID.substring(0, destinationID.length()-2), 2);
+        for (NodeID nodeID : candidate) {
+//                System.out.println(nodeID.getId());
+            int tempCubic = Integer.parseInt(nodeID.getId().substring(0, nodeID.getId().length()-2), 2);
+            int diff = Math.abs(tempCubic - destCubic);
+            if (diff < minDiff) {
+                minNode = nodeID;
+                minDiff = diff;
+            }
+        }
+
+        ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, minNode.getIp(), clientPort);
     }
 
 }

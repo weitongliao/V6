@@ -190,7 +190,7 @@ public class ServerTest {
             String key = entry.getKey();
             MSDB = Node.findHighestDifferentBit(padString(Integer.toBinaryString(getCubicalIndex(key)), cubicLength), padString(Integer.toBinaryString(cubicalIndex), cubicLength));
             diff = cubicalIndex - getCubicalIndex(key);
-            if(getCyclicIndex(key) == k - 1 && MSDB <= k - 1 && diff > 0){
+            if(getCyclicIndex(key) == k - 1 && MSDB <= k - 1 && diff >= 0){
                 if(leftCyclicNeighbor == null || diff < minDifference){
                     leftCyclicNeighbor = key;
                     minDifference = diff;
@@ -214,7 +214,7 @@ public class ServerTest {
             MSDB = Node.findHighestDifferentBit(padString(Integer.toBinaryString(getCubicalIndex(key)), cubicLength), padString(Integer.toBinaryString(cubicalIndex), cubicLength));
 //            System.out.println(MSDB+" "+Integer.toBinaryString(getCubicalIndex(key))+" "+Integer.toBinaryString(cubicalIndex));
             diff = cubicalIndex - getCubicalIndex(key);
-            if(getCyclicIndex(key) == k - 1 && MSDB <= k - 1 && diff < 0){
+            if(getCyclicIndex(key) == k - 1 && MSDB <= k - 1 && diff <= 0){
                 if(rightCyclicNeighbor == null || diff < minDifference){
                     rightCyclicNeighbor = key;
                     minDifference = diff;

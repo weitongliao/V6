@@ -31,8 +31,8 @@ public class RT4 {
         node.setNodeId(currentNodeID);
         node.setLeftOutsideLeaf(new NodeID(ServerTest.getLeftOutsideLeaf(nodes, currentNodeID), ""));
         node.setRightOutsideLeaf(new NodeID(ServerTest.getRightOutsideLeaf(nodes, currentNodeID), ""));
-//        node.setLeftCyclicNeighbor(new NodeID(ServerTest.getLeftCyclicNeighbor(nodes, currentNodeID), ""));
-//        node.setRightCyclicNeighbor(new NodeID(ServerTest.getRightCyclicNeighbor(nodes, currentNodeID), ""));
+        node.setLeftCyclicNeighbor(new NodeID(ServerTest.getLeftCyclicNeighbor(nodes, currentNodeID), ""));
+        node.setRightCyclicNeighbor(new NodeID(ServerTest.getRightCyclicNeighbor(nodes, currentNodeID), ""));
 //        node.setCubicalNeighbor(new NodeID(ServerTest.getCubicalNeighbor(nodes, currentNodeID), ""));
         node.setLeftInsideLeaf(new NodeID(ServerTest.getInnerLeaf(nodes, currentNodeID).get(0), ""));
         node.setRightInsideLeaf(new NodeID(ServerTest.getInnerLeaf(nodes, currentNodeID).get(1), ""));
@@ -41,8 +41,8 @@ public class RT4 {
 
         System.out.println("Left Outside Leaf: " + node.getLeftOutsideLeaf().getId());
         System.out.println("Right Outside Leaf: " + node.getRightOutsideLeaf().getId());
-//        System.out.println("Left Cyclic Neighbor: " + node.getLeftCyclicNeighbor().getId());
-//        System.out.println("Right Cyclic Neighbor: " + node.getRightCyclicNeighbor().getId());
+        System.out.println("Left Cyclic Neighbor: " + node.getLeftCyclicNeighbor().getId());
+        System.out.println("Right Cyclic Neighbor: " + node.getRightCyclicNeighbor().getId());
 //        System.out.println("Cubical Neighbor: " + node.getCubicalNeighbor().getId());
         System.out.println("Left inside leaf: "+ node.getLeftInsideLeaf().getId());
         System.out.println("Right inside leaf "+ node.getRightInsideLeaf().getId());

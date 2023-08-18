@@ -47,6 +47,6 @@ public class RT3 {
         System.out.println("Left inside leaf: "+ node.getLeftInsideLeaf().getId());
         System.out.println("Right inside leaf "+ node.getRightInsideLeaf().getId());
 
-        node.routing("f", "000000000000012", "101101101010103", "");
+        node.routing("f", "000000000000012", "101101101010111", "");
     }
 }
