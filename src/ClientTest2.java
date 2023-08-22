@@ -6,6 +6,6 @@ public class ClientTest2 {
         int gpu = 3;
         int ram = 4;
 
-        ClientTest.startService(node, cpu, gpu, ram);
+        Client.startService(node, cpu, gpu, ram);
     }
 }

@@ -344,7 +344,7 @@ public class TestNode {
                 return;
             }else {
                 System.out.println("Node "+ this.nodeId +" traverse to "+this.rightInsideLeaf.getId());
-                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
+                Client.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
                 return;
             }
 //            sendRequest(this.rightInsideLeaf, "");
@@ -356,7 +356,7 @@ public class TestNode {
                 return;
             }else {
                 System.out.println("Node "+ this.nodeId +" traverse to "+this.leftInsideLeaf.getId());
-                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
+                Client.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
                 return;
             }
 //            sendRequest(this.leftInsideLeaf, "");
@@ -371,12 +371,12 @@ public class TestNode {
             // left inside leaf is destination
             if (Objects.equals(destinationID, this.leftInsideLeaf.getId())){
                 System.out.println("Node "+ this.nodeId +" traverse to "+this.leftInsideLeaf.getId());
-                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
+                Client.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
             }
             // left inside leaf is destination
             else if (Objects.equals(destinationID, this.rightInsideLeaf.getId())){
                 System.out.println("Node "+ this.nodeId +" traverse to "+this.rightInsideLeaf.getId());
-                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
+                Client.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
             }
             // closer node
             else {

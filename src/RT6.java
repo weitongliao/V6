@@ -29,13 +29,13 @@ public class RT6 {
 
         TestNode node = new TestNode();
         node.setNodeId(currentNodeID);
-        node.setLeftOutsideLeaf(new NodeID(ServerTest.getLeftOutsideLeaf(nodes, currentNodeID), ""));
-        node.setRightOutsideLeaf(new NodeID(ServerTest.getRightOutsideLeaf(nodes, currentNodeID), ""));
-        node.setLeftCyclicNeighbor(new NodeID(ServerTest.getLeftCyclicNeighbor(nodes, currentNodeID), ""));
-        node.setRightCyclicNeighbor(new NodeID(ServerTest.getRightCyclicNeighbor(nodes, currentNodeID), ""));
-        node.setCubicalNeighbor(new NodeID(ServerTest.getCubicalNeighbor(nodes, currentNodeID), ""));
-        node.setLeftInsideLeaf(new NodeID(ServerTest.getInnerLeaf(nodes, currentNodeID).get(0), ""));
-        node.setRightInsideLeaf(new NodeID(ServerTest.getInnerLeaf(nodes, currentNodeID).get(1), ""));
+        node.setLeftOutsideLeaf(new NodeID(Server.getLeftOutsideLeaf(nodes, currentNodeID), ""));
+        node.setRightOutsideLeaf(new NodeID(Server.getRightOutsideLeaf(nodes, currentNodeID), ""));
+        node.setLeftCyclicNeighbor(new NodeID(Server.getLeftCyclicNeighbor(nodes, currentNodeID), ""));
+        node.setRightCyclicNeighbor(new NodeID(Server.getRightCyclicNeighbor(nodes, currentNodeID), ""));
+        node.setCubicalNeighbor(new NodeID(Server.getCubicalNeighbor(nodes, currentNodeID), ""));
+        node.setLeftInsideLeaf(new NodeID(Server.getInnerLeaf(nodes, currentNodeID).get(0), ""));
+        node.setRightInsideLeaf(new NodeID(Server.getInnerLeaf(nodes, currentNodeID).get(1), ""));
 
         System.out.println(node.getCubicalNeighbor().getId());
 

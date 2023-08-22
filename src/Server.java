@@ -2,11 +2,10 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet6Address;
-import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ServerTest {
+public class Server {
     // TODO: 2023/8/16 验证是否可以模糊查询 节点离开 安卓
     // TODO: 2023/8/16 模糊查询时节点生成随机id 前9位是所需资源量的标识符 加上0 所以前10位不是随机的，后面位数是随机的 加随机三位 加上0到12最大环中个数的随机数
     // TODO: 2023/8/16 目前还无法解决节点离开问题
@@ -22,7 +21,6 @@ public class ServerTest {
 
     public static void main(String[] args) {
         int port = 12345;
-
 
         try {
             DatagramSocket socket = new DatagramSocket(port, Inet6Address.getByName("::"));
@@ -44,71 +42,6 @@ public class ServerTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-//        Node t = new Node(new NodeID("1111"),
-//                new NodeID(3, "0000", "1.1.1.1", 12345),
-//                new NodeID(2, "0001", "1.1.1.1", 12345),
-//                new NodeID(1, "0010", "1.1.1.1", 12345),
-//                new NodeID(0, "0110", "1.1.1.1", 12345),
-//                new NodeID(1, "0100", "1.1.1.1", 12345),
-//                new NodeID(1, "1000", "1.1.1.1", 12345),
-//                new NodeID(2, "1011", "1.1.1.1", 12345));
-
-//        System.out.println(t.getNodeId().getCubicalIndex());
-
-//        nodes.put("111110011000004", "1.1.1.1");
-//        nodes.put("111101011000004", "1.1.1.1");
-////
-//        nodes.put("111111001000004", "1.1.1.1");
-//        nodes.put("111111010000004", "1.1.1.1");
-////
-//        nodes.put("110111000000004", "1.1.1.1");
-//        nodes.put("111101000000004", "1.1.1.1");
-//        nodes.put("111001000000004", "1.1.1.1");
-//        nodes.put("111101100000004", "1.1.1.1");
-//
-//        nodes.put("111111000000003", "1.1.1.1");
-//        nodes.put("111111000000002", "1.1.1.1");
-//
-////        nodes.put("111110111000008", "1.1.1.1");
-//        nodes.put("111110111000004", "1.1.1.1");
-//
-////        nodes.put("111111110000004", "1.1.1.1");
-//        nodes.put("111111001000008", "1.1.1.1");
-//        nodes.put("111111001000007", "1.1.1.1");
-//        nodes.put("111111011000007", "1.1.1.1");
-//        nodes.put("111111000000006", "1.1.1.1");
-//        nodes.put("111111000000007", "1.1.1.1");
-
-
-//        nodes.put("111111000000004", "1.1.1.1");
-//        nodes.put("111111001000004", "1.1.1.1");
-
-
-
-//        String currentNodeID = "11111100005";
-        // left cyclic neighbor
-//        nodes.put("111111110100004", "1.1.1.1");
-//        nodes.put("111111111000004", "1.1.1.1");
-//        nodes.put("111111111100104", "1.1.1.1");
-//
-//        nodes.put("111111101100004", "1.1.1.1");
-//
-//        nodes.put("010011100000012", "1.1.1.1");
-//        nodes.put("010011100000011", "1.1.1.1");
-//        nodes.put("111111111100003", "1.1.1.1");
-//
-//        String currentNodeID = "010011100001112";
-//        String currentNodeID = "111111000000005";
-//
-//
-//        System.out.println("Left Outside Leaf: " + getLeftOutsideLeaf(nodes, currentNodeID));
-//        System.out.println("Right Outside Leaf: " + getRightOutsideLeaf(nodes, currentNodeID));
-//        System.out.println("Left Cyclic Neighbor: " + getLeftCyclicNeighbor(nodes, currentNodeID));
-//        System.out.println("Right Cyclic Neighbor: " + getRightCyclicNeighbor(nodes, currentNodeID));
-//        System.out.println("Cubical Neighbor: " + getCubicalNeighbor(nodes, currentNodeID));
-//        System.out.println(getInnerLeaf(nodes, currentNodeID));
-
     }
 
     public static String getLeftOutsideLeaf(ConcurrentHashMap<String, String> nodes, String currentNodeID) {

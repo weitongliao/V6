@@ -160,7 +160,7 @@ public class Node {
 ////            this.routing("e", this.nodeId, source, this.ip);
 //        }
         if(this.getCubicalNeighbor() != null){
-            ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.cubicalNeighbor.getIp(), clientPort);
+            Client.sendMsg(header, data, source, this.nodeId, destinationID, this.cubicalNeighbor.getIp(), clientPort);
         } else {
             if (this.leftInsideLeaf == null && this.rightInsideLeaf == null && this.leftOutsideLeaf == null && this.rightOutsideLeaf == null){
                 this.routing("e", this.nodeId, source, this.ip);
@@ -228,11 +228,11 @@ public class Node {
             int diff2 = Math.abs(targetValue - value2);
 
             if (diff1 < diff2) {
-                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftOutsideLeaf.getIp(), clientPort);
+                Client.sendMsg(header, data, source, this.nodeId, destinationID, this.leftOutsideLeaf.getIp(), clientPort);
 //                sendRequest(this.leftInsideLeaf, "");
             } else {
                 // TODO data中包含source节点需要的资源量
-                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightOutsideLeaf.getIp(), clientPort);
+                Client.sendMsg(header, data, source, this.nodeId, destinationID, this.rightOutsideLeaf.getIp(), clientPort);
 //                sendRequest(this.rightInsideLeaf, "");
             }
         }
@@ -336,7 +336,7 @@ public class Node {
                 this.routing("e", this.nodeId, source, this.ip);
                 return;
             }else {
-                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
+                Client.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
                 return;
             }
 //            sendRequest(this.rightInsideLeaf, "");
@@ -347,7 +347,7 @@ public class Node {
                 this.routing("e", this.nodeId, source, this.ip);
                 return;
             }else {
-                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
+                Client.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
                 return;
             }
 //            sendRequest(this.leftInsideLeaf, "");
@@ -361,11 +361,11 @@ public class Node {
         } else {
             // left inside leaf is destination
             if (Objects.equals(destinationID, this.leftInsideLeaf.getId())){
-                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
+                Client.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
             }
             // left inside leaf is destination
             else if (Objects.equals(destinationID, this.rightInsideLeaf.getId())){
-                ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
+                Client.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
             }
             // closer node
             else {
@@ -378,11 +378,11 @@ public class Node {
                 int diff2 = Math.abs(targetValue - value2);
 
                 if (diff1 < diff2) {
-                    ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
+                    Client.sendMsg(header, data, source, this.nodeId, destinationID, this.leftInsideLeaf.getIp(), clientPort);
 //                sendRequest(this.leftInsideLeaf, "");
                 } else {
                     // TODO data中包含source节点需要的资源量
-                    ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
+                    Client.sendMsg(header, data, source, this.nodeId, destinationID, this.rightInsideLeaf.getIp(), clientPort);
 //                sendRequest(this.rightInsideLeaf, "");
                 }
             }
@@ -468,7 +468,7 @@ public class Node {
             }
         }
 
-        ClientTest.sendMsg(header, data, source, this.nodeId, destinationID, minNode.getIp(), clientPort);
+        Client.sendMsg(header, data, source, this.nodeId, destinationID, minNode.getIp(), clientPort);
     }
 
     @Override

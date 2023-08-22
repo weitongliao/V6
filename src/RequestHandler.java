@@ -93,12 +93,12 @@ public class RequestHandler implements Runnable {
             // reply update request
             String id = (String) receivedMap.get("E");
             List<String> results = new ArrayList<>();
-            results.add(ServerTest.getLeftOutsideLeaf(nodes, id));
-            results.add(ServerTest.getRightOutsideLeaf(nodes, id));
-            results.add(ServerTest.getLeftCyclicNeighbor(nodes, id));
-            results.add(ServerTest.getRightCyclicNeighbor(nodes, id));
-            results.add(ServerTest.getCubicalNeighbor(nodes, id));
-            results.addAll(ServerTest.getInnerLeaf(nodes, id));
+            results.add(Server.getLeftOutsideLeaf(nodes, id));
+            results.add(Server.getRightOutsideLeaf(nodes, id));
+            results.add(Server.getLeftCyclicNeighbor(nodes, id));
+            results.add(Server.getRightCyclicNeighbor(nodes, id));
+            results.add(Server.getCubicalNeighbor(nodes, id));
+            results.addAll(Server.getInnerLeaf(nodes, id));
             for (int i = 0; i < 7; i++) {
                 if(results.get(i) == null){
                     results.add(null);

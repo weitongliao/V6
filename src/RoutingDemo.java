@@ -131,26 +131,26 @@ public class RoutingDemo {
         // Server code: server uses functions like ServerTest.get... to return neighbor information to each node
         // to maintenance network structure.
         for (TestNode node: allTestingNodes) {
-            if(ServerTest.getLeftOutsideLeaf(nodes, node.getNodeId()) !=null){
-                node.setLeftOutsideLeaf(new NodeID(ServerTest.getLeftOutsideLeaf(nodes, node.getNodeId()), ""));
+            if(Server.getLeftOutsideLeaf(nodes, node.getNodeId()) !=null){
+                node.setLeftOutsideLeaf(new NodeID(Server.getLeftOutsideLeaf(nodes, node.getNodeId()), ""));
             }
-            if(ServerTest.getRightOutsideLeaf(nodes, node.getNodeId()) !=null){
-                node.setRightOutsideLeaf(new NodeID(ServerTest.getRightOutsideLeaf(nodes, node.getNodeId()), ""));
+            if(Server.getRightOutsideLeaf(nodes, node.getNodeId()) !=null){
+                node.setRightOutsideLeaf(new NodeID(Server.getRightOutsideLeaf(nodes, node.getNodeId()), ""));
             }
-            if(ServerTest.getLeftCyclicNeighbor(nodes, node.getNodeId()) !=null){
-                node.setLeftCyclicNeighbor(new NodeID(ServerTest.getLeftCyclicNeighbor(nodes, node.getNodeId()), ""));
+            if(Server.getLeftCyclicNeighbor(nodes, node.getNodeId()) !=null){
+                node.setLeftCyclicNeighbor(new NodeID(Server.getLeftCyclicNeighbor(nodes, node.getNodeId()), ""));
             }
-            if(ServerTest.getRightCyclicNeighbor(nodes, node.getNodeId()) !=null){
-                node.setRightCyclicNeighbor(new NodeID(ServerTest.getRightCyclicNeighbor(nodes, node.getNodeId()), ""));
+            if(Server.getRightCyclicNeighbor(nodes, node.getNodeId()) !=null){
+                node.setRightCyclicNeighbor(new NodeID(Server.getRightCyclicNeighbor(nodes, node.getNodeId()), ""));
             }
-            if(ServerTest.getCubicalNeighbor(nodes, node.getNodeId()) !=null){
-                node.setCubicalNeighbor(new NodeID(ServerTest.getCubicalNeighbor(nodes, node.getNodeId()), ""));
+            if(Server.getCubicalNeighbor(nodes, node.getNodeId()) !=null){
+                node.setCubicalNeighbor(new NodeID(Server.getCubicalNeighbor(nodes, node.getNodeId()), ""));
             }
-            if(ServerTest.getInnerLeaf(nodes, node.getNodeId()).get(0) !=null){
-                node.setLeftInsideLeaf(new NodeID(ServerTest.getInnerLeaf(nodes, node.getNodeId()).get(0), ""));
+            if(Server.getInnerLeaf(nodes, node.getNodeId()).get(0) !=null){
+                node.setLeftInsideLeaf(new NodeID(Server.getInnerLeaf(nodes, node.getNodeId()).get(0), ""));
             }
-            if(ServerTest.getInnerLeaf(nodes, node.getNodeId()).get(1) !=null){
-                node.setRightInsideLeaf(new NodeID(ServerTest.getInnerLeaf(nodes, node.getNodeId()).get(1), ""));
+            if(Server.getInnerLeaf(nodes, node.getNodeId()).get(1) !=null){
+                node.setRightInsideLeaf(new NodeID(Server.getInnerLeaf(nodes, node.getNodeId()).get(1), ""));
             }
         }
 

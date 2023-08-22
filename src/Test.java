@@ -12,11 +12,11 @@ public class Test {
 //        String currentNodeID = "111111000000005";
 
 
-        System.out.println("Left Outside Leaf: " + ServerTest.getLeftOutsideLeaf(nodes, currentNodeID));
-        System.out.println("Right Outside Leaf: " + ServerTest.getRightOutsideLeaf(nodes, currentNodeID));
-        System.out.println("Left Cyclic Neighbor: " + ServerTest.getLeftCyclicNeighbor(nodes, currentNodeID));
-        System.out.println("Right Cyclic Neighbor: " + ServerTest.getRightCyclicNeighbor(nodes, currentNodeID));
-        System.out.println("Cubical Neighbor: " + ServerTest.getCubicalNeighbor(nodes, currentNodeID));
-        System.out.println(ServerTest.getInnerLeaf(nodes, currentNodeID));
+        System.out.println("Left Outside Leaf: " + Server.getLeftOutsideLeaf(nodes, currentNodeID));
+        System.out.println("Right Outside Leaf: " + Server.getRightOutsideLeaf(nodes, currentNodeID));
+        System.out.println("Left Cyclic Neighbor: " + Server.getLeftCyclicNeighbor(nodes, currentNodeID));
+        System.out.println("Right Cyclic Neighbor: " + Server.getRightCyclicNeighbor(nodes, currentNodeID));
+        System.out.println("Cubical Neighbor: " + Server.getCubicalNeighbor(nodes, currentNodeID));
+        System.out.println(Server.getInnerLeaf(nodes, currentNodeID));
     }
 }

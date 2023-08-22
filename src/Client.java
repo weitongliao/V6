@@ -4,12 +4,14 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
 
-public class ClientTest {
-    private static final int max_count_in_ring = 12;
+public class Client {
+    private static final String server_address = "fe80::25c6:397:7e73:9775";
+    private static final int max_count_in_ring = 12; // dimension is 13, max count is 12
 
     public static void main(String[] args) {
         Node node = new Node();
 
+        // Current node resource amount setting from 0-7 each category
         int cpu = 2;
         int gpu = 3;
         int ram = 4;
@@ -25,7 +27,7 @@ public class ClientTest {
                 + String.format("%1$" + 3 + "s", GPU).replace(' ', '0')
                 + String.format("%1$" + 3 + "s", RAM).replace(' ', '0');
 
-        String serverAddress = "fe80::25c6:397:7e73:9775";
+        String serverAddress = server_address;
         int serverPort = 12345;
         int listenPort = 23456;
 
@@ -112,7 +114,7 @@ class CommunicationToServerThread implements Runnable {
     public void run() {
         while (true){
             // Update Neighbors
-            ClientTest.sendMsg("u", null, node.getNodeId(), node.getNodeId(), null, serverAddress, serverPort);
+            Client.sendMsg("u", null, node.getNodeId(), node.getNodeId(), null, serverAddress, serverPort);
             try {
                 Thread.sleep(10000); //update neighbor every 10 seconds
             } catch (InterruptedException e) {
