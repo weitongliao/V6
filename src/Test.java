@@ -2,6 +2,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Test {
     public static void main(String[] args) {
+        System.out.println(RequestHandler.padString("001", 3));
         ConcurrentHashMap<String, String> nodes = new ConcurrentHashMap<>();
         nodes.put("100100100000012", "1.1.1.1");
         nodes.put("100100100000011", "1.1.1.1");

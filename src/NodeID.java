@@ -29,7 +29,10 @@ public class NodeID {
         this.port = port;
     }
 
-
+    @Override
+    public String toString() {
+        return id;
+    }
 
     public NodeID(String id, String ip) {
         this.id = id;

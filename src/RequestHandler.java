@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RequestHandler implements Runnable {
     // 环里最大的
     // TODO: 2023/8/15 服务器还要处理节点离开 写出节点发布资源需求的方法 
-    private static final int max_count_in_ring = 12;
+    private static final int max_count_in_ring = 13;
     private static int clientPort = 23456;
     private DatagramPacket packet;
     private ConcurrentHashMap<String, String> nodes;
@@ -46,26 +46,48 @@ public class RequestHandler implements Runnable {
             //cpu 000 gpu 000 ram 000 大间距0 随机簇000 index00 12位必须 加三位随机 15
             String resourceID = (String) receivedMap.get("D");
             String id = "";
-            while(true){
-                String randomPad = generateRandomBinary(3);
-                if(counts.containsKey(resourceID+"0"+randomPad)){
-                    int count = counts.get(resourceID+"0"+randomPad);
-                    if (count < 15){
-                        counts.put(resourceID+"0"+randomPad, count + 1);
 
-                        id = resourceID+"0"+randomPad+String.format("%02d", (max_count_in_ring-count));
+            for (int i = 0; i < 8; i++) {
+                String key = resourceID+"0"+padString(Integer.toBinaryString(i), 3);
+                if(counts.containsKey(key)){
+                    int count = counts.get(key);
+                    if(count < max_count_in_ring){
+                        counts.put(key, count + 1);
+                        id = key + padString(String.valueOf(max_count_in_ring - count - 1), 2);
                         break;
                     }
-                }else{
-                    counts.put(resourceID+"0"+randomPad, 1);
-                    id = resourceID+"0"+randomPad+String.format("%02d", max_count_in_ring);
+                }else {
+                    counts.put(key, 1);
+                    id = key + padString(String.valueOf(max_count_in_ring - 1), 2);
                     break;
                 }
             }
-            nodes.put(id, senderIpv6Address);
+
+//            while(true){
+//                String randomPad = generateRandomBinary(3);
+//                if(counts.containsKey(resourceID+"0"+randomPad)){
+//                    int count = counts.get(resourceID+"0"+randomPad);
+//                    if (count < 15){
+//                        counts.put(resourceID+"0"+randomPad, count + 1);
+//
+//                        id = resourceID+"0"+randomPad+String.format("%02d", (max_count_in_ring-count));
+//                        break;
+//                    }
+//                }else{
+//                    counts.put(resourceID+"0"+randomPad, 1);
+//                    id = resourceID+"0"+randomPad+String.format("%02d", max_count_in_ring);
+//                    break;
+//                }
+//            }
+            if(id.equals("")){
+                System.out.println("Generating id error");
+            }else {
+                nodes.put(id, senderIpv6Address);
 //            System.out.println(counts);
 //            System.out.println(nodes);
-            sendMsg("i", id+","+senderIpv6Address, null, null, senderIpv6Address, clientPort);
+                sendMsg("i", id+","+senderIpv6Address, null, null, senderIpv6Address, clientPort);
+            }
+
 //            nodes.put("11010", "1.1.1.2");
         } else if (Objects.equals(header, "u")){
             // reply update request
@@ -124,5 +146,16 @@ public class RequestHandler implements Runnable {
         }
 
         return binaryBuilder.toString();
+    }
+
+    public static String padString(String input, int length) {
+        if (input.length() >= length) {
+            return input; // 字符串长度已达到或超过目标长度，不需要补全
+        }
+
+        int paddingLength = length - input.length();
+        String padding = String.join("", Collections.nCopies(paddingLength, "0")); // 使用0进行补全
+
+        return padding + input;
     }
 }
